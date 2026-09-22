@@ -388,8 +388,9 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
         <figure>
             <a href="demo/"><video autoplay muted loop playsinline preload="metadata" poster="assets/demo_walkthrough_poster.png"
                    src="assets/demo_walkthrough.mp4"></video></a>
-            <figcaption>A query typed into the page, encoded with the fine-tuned sentence encoder and ranked against
-            all 3,623 held-out test clips. <a href="assets/demo_text_to_motion.png">Still of a result</a>.</figcaption>
+            <figcaption>A sentence typed into the page travels through the sentence encoder, is scored against the
+            stored motion embeddings of all 3,623 held-out test clips, and the ranked clips open with their signals.
+            <a href="assets/demo_text_to_motion.png">Still of a result</a>.</figcaption>
         </figure>
         <div>
             <p>The <a href="demo/">demo page</a> loads the exported fp16 sentence encoder (669&nbsp;MB, fetched once and
@@ -397,8 +398,9 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
             <ul>
                 <li><b>Text-to-Motion.</b> Write any sentence about how a vehicle moved. It is encoded on your machine and
                 ranked against every clip, with no filtering by ground truth and no precomputed answer.</li>
-                <li><b>Motion-to-Text.</b> Open a retrieved clip and rank the 5,670 complete descriptions against its
-                stored motion embedding. The states attached to the top description are the predicted motion classes.</li>
+                <li><b>Motion-to-Text.</b> Open a retrieved clip, or a random one, and rank the 5,670 complete
+                descriptions against its stored motion embedding. The top description is the prediction, and its six
+                states are compared with the clip's ground-truth labels.</li>
                 <li><b>Signals and labels.</b> Each clip shows its twelve input channels, its bird's-eye trajectory and
                 its six ontology labels, with undetermined categories reported as such.</li>
             </ul>

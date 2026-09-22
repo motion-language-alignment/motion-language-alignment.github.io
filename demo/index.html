@@ -211,6 +211,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow:has(.active) .box:not(.active) { opacity: .42; }
 .flow .box.active { opacity: 1; box-shadow: 0 0 0 2px var(--encoder-edge); }
 .flow .box.done { opacity: .72; }
+.flow:not(:has(.active)) .box.done { opacity: 1; }
 .flow .arrow { transition: color 200ms var(--ease-out); }
 .flow .arrow.lit { color: var(--encoder-edge); }
 
@@ -528,6 +529,6 @@ its motion vector is matched against 5,670 descriptions.</p>
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js?v=c691e5d8"></script>
+<script type="module" src="app.js?v=3603a5aa"></script>
 </body>
 </html>

@@ -363,7 +363,7 @@ async function fly(text, from, to, { shrink = false, ms = 700 } = {}) {
 }
 
 function markStage(current) {
-    const at = current === null ? -1 : STAGES.indexOf(current);
+    const at = current === null ? -1 : current === "finished" ? STAGES.length : STAGES.indexOf(current);
     STAGES.forEach((name, position) => {
         const box = element(`flow-${name}`);
         box.classList.toggle("active", name === current);
@@ -427,7 +427,7 @@ async function runQuery(text, pace = SHOWN) {
     await pace.reveal();
     await select(0);
     await pace.hold(1200);
-    markStage(null);
+    markStage("finished");
     status(`Encoded in ${Math.round(encoded - started)} ms, `
            + `ranked ${index.n_clips.toLocaleString()} clips in ${Math.round(ranked - scoring)} ms. `
            + (lastQueryStates
