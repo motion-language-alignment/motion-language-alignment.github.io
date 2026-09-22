@@ -559,7 +559,7 @@ function stateTable(labels) {
     box.className = "states";
     const table = document.createElement("table");
     const head = document.createElement("tr");
-    for (const column of ["Category", "Clip label", lastQueryStates ? "Requested" : ""]) {
+    for (const column of ["Category", "GT label", lastQueryStates ? "Requested" : ""]) {
         if (!column) continue;
         const cell = document.createElement("th");
         cell.textContent = column;
