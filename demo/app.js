@@ -154,8 +154,8 @@ async function sampleClip() {
     for (const item of element("results").children) item.setAttribute("aria-selected", "false");
     const signals = await fetch(`./data/clips/${clip.i}.json`).then((r) => r.json());
     renderDetail({ rank: null, score: null, clip }, signals);
-    status(`Sample clip ${clip.i}: one of the ${complete.length} test clips with all six labels valid, `
-           + "the set the paper's motion-to-text evaluation uses.");
+    status(`Clip ${clip.i} opened without any typed sentence. Its stored motion embedding (from IMU + CAN) is ranked `
+           + "against 5,670 descriptions; the best-matching one is the predicted description.");
     await showDescriptions(clip);
 }
 
@@ -171,11 +171,17 @@ async function showDescriptions(clip) {
     const started = performance.now();
     const ranked = describe(clip.i);
     const ms = performance.now() - started;
-    head.textContent = `Motion-to-Text · top ${M2T_TOP} of ${candidates.n_candidates.toLocaleString()} `
-                     + `complete descriptions, ranked in ${ms.toFixed(0)} ms`;
+    head.textContent = `Motion-to-Text · this clip's motion embedding ranked against `
+                     + `${candidates.n_candidates.toLocaleString()} complete descriptions in ${ms.toFixed(0)} ms`;
+    box.append(predictedBlock(ranked[0], clip.labels));
+    const listTitle = document.createElement("div");
+    listTitle.className = "plot-title descriptions-title";
+    listTitle.textContent = `Next closest descriptions (ranks 2–${M2T_TOP})`;
+    box.append(listTitle);
     const list = document.createElement("ol");
     list.className = "descriptions";
-    for (const entry of ranked) {
+    list.style.counterReset = "description 1";   // the CSS counter numbers these from 2
+    for (const entry of ranked.slice(1)) {
         const item = document.createElement("li");
         const line = document.createElement("div");
         line.className = "rank-line";
@@ -193,12 +199,59 @@ async function showDescriptions(clip) {
     const note = document.createElement("p");
     note.className = "note";
     const complete = index.categories.every((k) => clip.labels[k].validity === "valid");
-    note.textContent = complete
-        ? "Each chip compares a described state with the clip's ground truth. The top description's six states are "
-          + "the predicted motion classes; this clip is fully labelled, so it counts in the paper's evaluation."
-        : "Each chip compares a described state with the clip's ground truth where a label exists. Categories "
-          + "without a valid label are left unverified; the paper's Recall@k uses fully labelled clips only.";
+    note.textContent = "Chips compare each described state with the ground truth: green agrees, red differs, dashed "
+        + (complete ? "unverified. This clip is fully labelled, so it counts in the paper's Motion-to-Text evaluation."
+                    : "unverified. Categories without a valid label are unverified; the paper's Recall@k uses fully labelled clips only.");
     box.append(note);
+}
+
+/* The top description is the prediction: its sentence, then its six states next to the clip's ground truth. */
+function predictedBlock(top, labels) {
+    const block = document.createElement("div");
+    block.className = "m2t-result";
+    const cap = document.createElement("div");
+    cap.className = "plot-title";
+    cap.textContent = `Predicted description · cos ${top.score.toFixed(4)}`;
+    const lead = document.createElement("p");
+    lead.className = "lead";
+    lead.textContent = top.text;
+    block.append(cap, lead, comparisonTable(top.states, labels));
+    const checked = index.categories.filter((k) => labels[k].validity === "valid" && labels[k].state);
+    const matches = checked.filter((k) => labels[k].state === top.states[k]).length;
+    const summary = document.createElement("p");
+    summary.className = "summary";
+    summary.innerHTML = `<b>${matches} of ${checked.length}</b> predicted states match the ground-truth labels`
+                      + (checked.length < index.categories.length ? `; ${index.categories.length - checked.length} unverified.` : ".");
+    block.append(summary);
+    return block;
+}
+
+function comparisonTable(states, labels) {
+    const box = document.createElement("div");
+    box.className = "states";
+    const table = document.createElement("table");
+    const head = document.createElement("tr");
+    for (const column of ["Category", "Predicted", "GT label"]) {
+        const cell = document.createElement("th");
+        cell.textContent = column;
+        head.append(cell);
+    }
+    table.append(head);
+    for (const category of index.categories) {
+        const label = labels[category], valid = label.validity === "valid" && label.state;
+        const row = document.createElement("tr");
+        const name = document.createElement("td");
+        name.textContent = CATEGORY_LABEL[category];
+        const predicted = document.createElement("td");
+        predicted.textContent = pretty(states[category]);
+        predicted.className = "verdict " + (!valid ? "unverified" : label.state === states[category] ? "match" : "different");
+        const truth = document.createElement("td");
+        truth.textContent = valid ? pretty(label.state) : (label.validity === "not_applicable" ? "not applicable" : "unknown");
+        row.append(name, predicted, truth);
+        table.append(row);
+    }
+    box.append(table);
+    return box;
 }
 
 /* Six chips, one per category: agreement with the clip label, or unverified when the label is missing. */
@@ -763,5 +816,5 @@ element("sample").addEventListener("click", () => sampleClip().catch((error) => 
 
 loadIndex().then(() => {
     status("Clip index loaded. Type a sentence and press Search; the encoder is downloaded on the "
-           + "first search and cached afterwards. Motion-to-Text needs no download: open a sample clip.");
+           + "first search and cached afterwards. Motion-to-Text needs no download: describe a random clip.");
 }).catch((error) => status(`Failed to load the clip index: ${error}`));

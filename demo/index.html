@@ -96,7 +96,7 @@ b, strong { font-weight: 600; }
 }
 
 .lede {
-    max-width: 62ch; margin: var(--space-md) 0 var(--space-lg);
+    max-width: 920px; margin: var(--space-md) 0 var(--space-lg);
     font-size: var(--text-lg); line-height: 1.5; font-family: var(--font-display);
     color: var(--ink-soft);
 }
@@ -143,9 +143,10 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 
 .examples {
     display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs);
-    margin-top: var(--space-sm); max-width: 920px;
+    margin-top: var(--space-sm);
 }
-.examples .cap { margin-right: var(--space-2xs); }
+.examples .cap { font-family: var(--font-num); font-size: var(--text-xs); letter-spacing: .09em; text-transform: uppercase;
+                 color: var(--ink-mute); margin-right: var(--space-xs); }
 .examples button {
     font-family: var(--font-body); font-size: var(--text-sm); color: var(--ink);
     padding: 4px 12px; background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 999px;
@@ -353,6 +354,13 @@ canvas { display: block; width: 100%; }
 .examples.aside button { color: var(--encoder-ink); border-color: var(--encoder-edge); border-radius: 4px; }
 
 /* ---------------------------------------------------------------- motion-to-text */
+.m2t-result { margin-top: var(--space-sm); padding: var(--space-sm) var(--space-md); border: 1px solid var(--encoder-edge);
+              border-radius: 4px; background: var(--encoder-fill); }
+.m2t-result .lead { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.4; margin: 4px 0 var(--space-xs); }
+.m2t-result .states table { margin-top: var(--space-xs); }
+.m2t-result .summary { margin: var(--space-xs) 0 0; font-size: var(--text-sm); color: var(--ink-soft); }
+.m2t-result .summary b { color: var(--verdict-match); }
+.descriptions-title { margin-top: var(--space-md); }
 
 #m2t { margin-top: var(--space-lg); border-top: 1px solid var(--rule-strong); padding-top: var(--space-sm); }
 #m2t > button { font-family: var(--font-body); font-size: var(--text-sm); padding: 6px var(--space-md);
@@ -362,7 +370,6 @@ canvas { display: block; width: 100%; }
                    position: relative; counter-increment: description; }
 .descriptions li::before { content: counter(description); position: absolute; left: 6px; top: 9px;
                            font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; }
-.descriptions li:first-child .sentence { font-weight: 600; }
 .descriptions li:last-child { border-bottom: 1px solid var(--rule); }
 .descriptions .rank-line { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); }
 .descriptions .sentence { font-family: var(--font-display); font-size: var(--text-base); line-height: 1.45; }
@@ -419,7 +426,7 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <button id="search">Search</button>
 </div>
 <div class="examples" id="examples"><span class="cap">Try an example</span></div>
-<div class="examples aside"><button id="sample">Motion-to-Text on a sample clip, no download needed</button></div>
+<div class="examples aside"><span class="cap">Reverse direction</span><button id="sample">Describe a random clip (Motion-to-Text, no download)</button></div>
 <div id="status">Loading the clip index&hellip;</div>
 <div id="progress"><div></div></div>
 
@@ -496,6 +503,6 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js?v=64702429"></script>
+<script type="module" src="app.js?v=c691e5d8"></script>
 </body>
 </html>
