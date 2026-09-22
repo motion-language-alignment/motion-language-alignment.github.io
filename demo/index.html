@@ -171,7 +171,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
     padding-top: var(--space-md); border-top: 1px solid var(--rule);
 }
 .flow .box {
-    position: relative; grid-row: 3; align-self: stretch; min-height: 72px;
+    position: relative; grid-row: 3; align-self: stretch; min-height: 118px;
     padding: var(--space-sm) var(--space-sm) var(--space-sm) 50px;
     border: 1px solid var(--retrieval-edge); background: var(--retrieval-fill); border-radius: 2px;
     transition: opacity 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
@@ -197,38 +197,64 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .box.active .ticket { animation: ticket-in 320ms var(--ease-out) both; }
 @keyframes ticket-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 
-/* the encoder is drawn as a small network; while it runs, activations sweep layer by layer */
-.flow .net { position: absolute; left: 10px; top: 12px; width: 32px; height: 30px; }
-.flow .net line { stroke: var(--ink-soft); stroke-width: .6; opacity: .45; }
-.flow .net circle { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1; }
-.flow .box.encoder svg.net { fill: none; }
-.flow .box.encoder.active .net circle { animation: fire 900ms var(--ease-out) infinite; }
-.flow .box.encoder.active .net line { animation: spark 900ms linear infinite; }
-.flow .net .l0 { animation-delay: 0ms !important; } .flow .net .l1 { animation-delay: 220ms !important; }
-.flow .net .l2 { animation-delay: 440ms !important; } .flow .net .l3 { animation-delay: 660ms !important; }
-@keyframes fire { 0%, 100% { fill: var(--paper); stroke: var(--ink-soft); }
-                  25% { fill: var(--encoder-edge); stroke: var(--encoder-edge); } }
-@keyframes spark { 0%, 100% { stroke: var(--ink-soft); opacity: .45; } 30% { stroke: var(--encoder-edge); opacity: 1; } }
+/* the encoder is drawn as a network on the right of its box; while it runs, activations sweep layer by layer */
+.flow .box svg.net { position: static; display: block; width: 100%; max-width: 176px; height: auto;
+                     margin: 6px 0 0 -30px; overflow: visible; stroke: none; }
+.flow .net line { stroke: var(--ink-mute); stroke-width: .7; opacity: .35; }
+.flow .net circle { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1.2; }
+.flow .box.encoder.active .net circle { animation: fire 1200ms var(--ease-out) infinite; }
+.flow .box.encoder.active .net line { animation: spark 1200ms linear infinite; }
+.flow .net .l0 { animation-delay: 0ms !important; }   .flow .net .l1 { animation-delay: 260ms !important; }
+.flow .net .l2 { animation-delay: 520ms !important; } .flow .net .l3 { animation-delay: 780ms !important; }
+@keyframes fire { 0%, 100% { fill: var(--paper); stroke: var(--ink-soft); r: 3.4; }
+                  22% { fill: var(--encoder-edge); stroke: var(--encoder-edge); r: 4.4; } }
+@keyframes spark { 0%, 100% { stroke: var(--ink-mute); opacity: .35; } 28% { stroke: var(--encoder-edge); opacity: 1; } }
 
-/* the pool is read top to bottom while the scores fill in */
+/* a copy of the sentence that travels: input → text-query box → encoder */
+.fly { position: fixed; z-index: 10; pointer-events: none; padding: 2px 8px; font-size: var(--text-sm); line-height: 1.4;
+       color: var(--ink); background: var(--paper); border: 1px solid var(--encoder-edge); border-radius: 3px;
+       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 8px oklch(0% 0 0 / .12); }
+
+/* the pool shows a shelf of stored vectors; while cosine runs, each is probed in turn */
 .flow .scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--encoder-edge); opacity: 0; }
-.flow .box.active .scan { animation: scan 700ms linear infinite; }
+.flow .box.active .scan { animation: scan 900ms linear infinite; }
 @keyframes scan { 0% { top: 0; opacity: .9; } 100% { top: calc(100% - 2px); opacity: .9; } }
-.flow .bars { position: absolute; right: 12px; bottom: 10px; display: flex; align-items: flex-end; gap: 3px; height: 22px; }
-.flow .bars i { display: block; width: 5px; height: 100%; background: var(--encoder-edge); transform: scaleY(.1);
-                transform-origin: bottom; opacity: 0; }
-.flow .box.active .bars i { animation: score 600ms var(--ease-out) infinite alternate; }
+.flow .vectors { display: flex; gap: 4px; margin-top: 8px; }
+.flow .vectors i, .flow .qv { display: block; width: 11px; height: 30px; border: 1px solid var(--encoder-edge); border-radius: 1px;
+    background: linear-gradient(to bottom, var(--c1) 0 25%, var(--c2) 25% 50%, var(--c3) 50% 75%, var(--c4) 75% 100%); }
+.flow .vectors i:nth-child(1) { --i: 0; --c1: oklch(60% .08 176); --c2: oklch(84% .05 176); --c3: oklch(70% .07 176); --c4: oklch(92% .03 176); }
+.flow .vectors i:nth-child(2) { --i: 1; --c1: oklch(88% .04 176); --c2: oklch(62% .08 176); --c3: oklch(78% .06 176); --c4: oklch(70% .07 176); }
+.flow .vectors i:nth-child(3) { --i: 2; --c1: oklch(72% .07 176); --c2: oklch(92% .03 176); --c3: oklch(58% .09 176); --c4: oklch(80% .05 176); }
+.flow .vectors i:nth-child(4) { --i: 3; --c1: oklch(80% .05 176); --c2: oklch(70% .07 176); --c3: oklch(90% .03 176); --c4: oklch(60% .08 176); }
+.flow .vectors i:nth-child(5) { --i: 4; --c1: oklch(64% .08 176); --c2: oklch(76% .06 176); --c3: oklch(86% .04 176); --c4: oklch(68% .07 176); }
+.flow .vectors i:nth-child(6) { --i: 5; --c1: oklch(90% .03 176); --c2: oklch(66% .08 176); --c3: oklch(74% .06 176); --c4: oklch(82% .05 176); }
+.flow .vectors i:nth-child(7) { --i: 6; --c1: oklch(70% .07 176); --c2: oklch(88% .04 176); --c3: oklch(62% .08 176); --c4: oklch(78% .06 176); }
+.flow .vectors i:nth-child(8) { --i: 7; --c1: oklch(84% .05 176); --c2: oklch(60% .08 176); --c3: oklch(92% .03 176); --c4: oklch(72% .07 176); }
+.flow .qv { --c1: oklch(52% .09 176); --c2: oklch(78% .07 176); --c3: oklch(64% .08 176); --c4: oklch(88% .04 176); }
+
+/* probing: vector k lifts in the pool while its score bar rises in the cosine box; 8 vectors per 2.4 s round */
+.flow:has(#flow-cosine.active) #flow-pool .vectors i { animation: probe 2400ms linear infinite; animation-delay: calc(var(--i) * 300ms); }
+@keyframes probe { 0%, 12%, 100% { transform: none; box-shadow: none; } 4% { transform: translateY(-4px); box-shadow: 0 0 0 2px var(--encoder-edge); } }
+.flow .calc { display: flex; align-items: flex-end; gap: 8px; margin-top: 8px; }
+.flow .calc .op { font-family: var(--font-num); color: var(--ink-soft); font-size: var(--text-sm); line-height: 30px; }
+.flow .bars { display: flex; align-items: flex-end; gap: 4px; height: 30px; }
+.flow .bars i { display: block; width: 11px; height: 100%; background: var(--encoder-edge); transform: scaleY(.06);
+                transform-origin: bottom; opacity: 0; border-radius: 1px; }
+.flow .box.active .bars i { animation: score 2400ms var(--ease-out) infinite; animation-delay: calc(var(--i) * 300ms); }
 .flow .box.done .bars i { transform: scaleY(var(--h)); opacity: 1; }
-.flow .bars i:nth-child(1) { --h: .95; animation-delay: 0ms; }  .flow .bars i:nth-child(2) { --h: .55; animation-delay: 80ms; }
-.flow .bars i:nth-child(3) { --h: .8; animation-delay: 160ms; } .flow .bars i:nth-child(4) { --h: .3; animation-delay: 240ms; }
-.flow .bars i:nth-child(5) { --h: .65; animation-delay: 320ms; }
-@keyframes score { from { transform: scaleY(.1); opacity: .35; } to { transform: scaleY(var(--h)); opacity: 1; } }
+.flow .bars i:nth-child(1) { --i: 0; --h: .95; } .flow .bars i:nth-child(2) { --i: 1; --h: .45; }
+.flow .bars i:nth-child(3) { --i: 2; --h: .8; }  .flow .bars i:nth-child(4) { --i: 3; --h: .25; }
+.flow .bars i:nth-child(5) { --i: 4; --h: .6; }  .flow .bars i:nth-child(6) { --i: 5; --h: .35; }
+.flow .bars i:nth-child(7) { --i: 6; --h: .7; }  .flow .bars i:nth-child(8) { --i: 7; --h: .5; }
+@keyframes score { 0%, 3% { transform: scaleY(.06); opacity: 0; } 12%, 100% { transform: scaleY(var(--h)); opacity: 1; } }
+.flow .calc .qv { opacity: 0; transition: opacity 300ms var(--ease-out); }
+.flow .box.active .calc .qv, .flow .box.done .calc .qv { opacity: 1; }
 
 /* results and their detail arrive in order */
 #results li.enter { animation: enter 360ms var(--ease-out) both; animation-delay: var(--delay, 0ms); }
 @keyframes enter { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-    .flow .net circle, .flow .net line, .flow .scan, .flow .bars i, .flow .ticket, #results li.enter { animation: none !important; }
+    .flow .net circle, .flow .net line, .flow .scan, .flow .bars i, .flow .vectors i, .flow .ticket, #results li.enter { animation: none !important; }
 }
 .flow .arrow { grid-row: 3; color: var(--ink-mute); font-size: var(--text-xl); line-height: 1; }
 .flow #flow-pool { grid-row: 1; grid-column: 5; align-self: end; }
@@ -402,29 +428,31 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box encoder" id="flow-encoder">
-        <svg class="net" viewBox="0 0 32 30" aria-hidden="true">
-            <g class="l0"><line x1="3" y1="5" x2="12" y2="4"/><line x1="3" y1="5" x2="12" y2="12"/><line x1="3" y1="15" x2="12" y2="12"/><line x1="3" y1="15" x2="12" y2="20"/><line x1="3" y1="25" x2="12" y2="20"/><line x1="3" y1="25" x2="12" y2="27"/></g>
-            <g class="l1"><line x1="12" y1="4" x2="21" y2="8"/><line x1="12" y1="12" x2="21" y2="8"/><line x1="12" y1="12" x2="21" y2="16"/><line x1="12" y1="20" x2="21" y2="16"/><line x1="12" y1="20" x2="21" y2="24"/><line x1="12" y1="27" x2="21" y2="24"/></g>
-            <g class="l2"><line x1="21" y1="8" x2="29" y2="15"/><line x1="21" y1="16" x2="29" y2="15"/><line x1="21" y1="24" x2="29" y2="15"/></g>
-            <circle class="l0" cx="3" cy="5" r="2.2"/><circle class="l0" cx="3" cy="15" r="2.2"/><circle class="l0" cx="3" cy="25" r="2.2"/>
-            <circle class="l1" cx="12" cy="4" r="2.2"/><circle class="l1" cx="12" cy="12" r="2.2"/><circle class="l1" cx="12" cy="20" r="2.2"/><circle class="l1" cx="12" cy="27" r="2.2"/>
-            <circle class="l2" cx="21" cy="8" r="2.2"/><circle class="l2" cx="21" cy="16" r="2.2"/><circle class="l2" cx="21" cy="24" r="2.2"/>
-            <circle class="l3" cx="29" cy="15" r="2.2"/>
+                <b>Sentence encoder</b><span>fp16, runs in this browser</span>
+        <svg class="net" viewBox="0 0 132 100" aria-hidden="true">
+            <g class="l0"><line x1="10" y1="10" x2="48" y2="10"/><line x1="10" y1="10" x2="48" y2="26"/><line x1="10" y1="10" x2="48" y2="42"/><line x1="10" y1="10" x2="48" y2="58"/><line x1="10" y1="10" x2="48" y2="74"/><line x1="10" y1="10" x2="48" y2="90"/><line x1="10" y1="37" x2="48" y2="10"/><line x1="10" y1="37" x2="48" y2="26"/><line x1="10" y1="37" x2="48" y2="42"/><line x1="10" y1="37" x2="48" y2="58"/><line x1="10" y1="37" x2="48" y2="74"/><line x1="10" y1="37" x2="48" y2="90"/><line x1="10" y1="63" x2="48" y2="10"/><line x1="10" y1="63" x2="48" y2="26"/><line x1="10" y1="63" x2="48" y2="42"/><line x1="10" y1="63" x2="48" y2="58"/><line x1="10" y1="63" x2="48" y2="74"/><line x1="10" y1="63" x2="48" y2="90"/><line x1="10" y1="90" x2="48" y2="10"/><line x1="10" y1="90" x2="48" y2="26"/><line x1="10" y1="90" x2="48" y2="42"/><line x1="10" y1="90" x2="48" y2="58"/><line x1="10" y1="90" x2="48" y2="74"/><line x1="10" y1="90" x2="48" y2="90"/></g>
+            <g class="l1"><line x1="48" y1="10" x2="86" y2="10"/><line x1="48" y1="10" x2="86" y2="26"/><line x1="48" y1="10" x2="86" y2="42"/><line x1="48" y1="10" x2="86" y2="58"/><line x1="48" y1="10" x2="86" y2="74"/><line x1="48" y1="10" x2="86" y2="90"/><line x1="48" y1="26" x2="86" y2="10"/><line x1="48" y1="26" x2="86" y2="26"/><line x1="48" y1="26" x2="86" y2="42"/><line x1="48" y1="26" x2="86" y2="58"/><line x1="48" y1="26" x2="86" y2="74"/><line x1="48" y1="26" x2="86" y2="90"/><line x1="48" y1="42" x2="86" y2="10"/><line x1="48" y1="42" x2="86" y2="26"/><line x1="48" y1="42" x2="86" y2="42"/><line x1="48" y1="42" x2="86" y2="58"/><line x1="48" y1="42" x2="86" y2="74"/><line x1="48" y1="42" x2="86" y2="90"/><line x1="48" y1="58" x2="86" y2="10"/><line x1="48" y1="58" x2="86" y2="26"/><line x1="48" y1="58" x2="86" y2="42"/><line x1="48" y1="58" x2="86" y2="58"/><line x1="48" y1="58" x2="86" y2="74"/><line x1="48" y1="58" x2="86" y2="90"/><line x1="48" y1="74" x2="86" y2="10"/><line x1="48" y1="74" x2="86" y2="26"/><line x1="48" y1="74" x2="86" y2="42"/><line x1="48" y1="74" x2="86" y2="58"/><line x1="48" y1="74" x2="86" y2="74"/><line x1="48" y1="74" x2="86" y2="90"/><line x1="48" y1="90" x2="86" y2="10"/><line x1="48" y1="90" x2="86" y2="26"/><line x1="48" y1="90" x2="86" y2="42"/><line x1="48" y1="90" x2="86" y2="58"/><line x1="48" y1="90" x2="86" y2="74"/><line x1="48" y1="90" x2="86" y2="90"/></g>
+            <g class="l2"><line x1="86" y1="10" x2="124" y2="10"/><line x1="86" y1="10" x2="124" y2="50"/><line x1="86" y1="10" x2="124" y2="90"/><line x1="86" y1="26" x2="124" y2="10"/><line x1="86" y1="26" x2="124" y2="50"/><line x1="86" y1="26" x2="124" y2="90"/><line x1="86" y1="42" x2="124" y2="10"/><line x1="86" y1="42" x2="124" y2="50"/><line x1="86" y1="42" x2="124" y2="90"/><line x1="86" y1="58" x2="124" y2="10"/><line x1="86" y1="58" x2="124" y2="50"/><line x1="86" y1="58" x2="124" y2="90"/><line x1="86" y1="74" x2="124" y2="10"/><line x1="86" y1="74" x2="124" y2="50"/><line x1="86" y1="74" x2="124" y2="90"/><line x1="86" y1="90" x2="124" y2="10"/><line x1="86" y1="90" x2="124" y2="50"/><line x1="86" y1="90" x2="124" y2="90"/></g>
+            <circle class="l0" cx="10" cy="10" r="3.4"/><circle class="l0" cx="10" cy="37" r="3.4"/><circle class="l0" cx="10" cy="63" r="3.4"/><circle class="l0" cx="10" cy="90" r="3.4"/>
+            <circle class="l1" cx="48" cy="10" r="3.4"/><circle class="l1" cx="48" cy="26" r="3.4"/><circle class="l1" cx="48" cy="42" r="3.4"/><circle class="l1" cx="48" cy="58" r="3.4"/><circle class="l1" cx="48" cy="74" r="3.4"/><circle class="l1" cx="48" cy="90" r="3.4"/>
+            <circle class="l2" cx="86" cy="10" r="3.4"/><circle class="l2" cx="86" cy="26" r="3.4"/><circle class="l2" cx="86" cy="42" r="3.4"/><circle class="l2" cx="86" cy="58" r="3.4"/><circle class="l2" cx="86" cy="74" r="3.4"/><circle class="l2" cx="86" cy="90" r="3.4"/>
+            <circle class="l3" cx="124" cy="10" r="3.4"/><circle class="l3" cx="124" cy="50" r="3.4"/><circle class="l3" cx="124" cy="90" r="3.4"/>
         </svg>
-        <b>Sentence encoder</b><span>fp16, runs in this browser</span>
         <i class="vector" id="query-vector" title="query embedding, 256 dimensions"><span></span><span></span><span></span><span></span></i>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box" id="flow-pool">
         <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
         <b>Motion embeddings</b><span>IMU + CAN clips, motion-encoded</span><span id="pool-size"></span>
+        <div class="vectors" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="scan"></div>
     </div>
     <div class="arrow down">&darr;</div>
     <div class="box" id="flow-cosine">
         <svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M4 20L16 6"/><path d="M11 20a7 7 0 0 0-2.4-5.3"/></svg>
         <b>Cosine similarity</b><span>against every test clip</span>
-        <div class="bars"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="calc" aria-hidden="true"><i class="qv"></i><span class="op">·</span>
+            <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box" id="flow-output">
@@ -471,6 +499,6 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js?v=ef4e670a"></script>
+<script type="module" src="app.js?v=9e1cef4c"></script>
 </body>
 </html>

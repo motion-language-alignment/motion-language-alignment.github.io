@@ -281,9 +281,30 @@ async function encode(text) {
 const STAGES = ["input", "encoder", "pool", "cosine", "output"];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/* A plain search shows each stage briefly; the walkthrough holds them longer and types the sentence. */
-const SHOWN = { stage: markStage, hold: (ms) => sleep(Math.round(ms * 0.55)), reveal: staggerResults };
-const IMMEDIATE = { stage() {}, async hold() {}, async reveal() {} };
+/* A plain search shows each stage; the walkthrough holds them longer and types the sentence. */
+const SHOWN = { stage: markStage, hold: sleep, reveal: staggerResults, fly };
+const IMMEDIATE = { stage() {}, async hold() {}, async reveal() {}, async fly() {} };
+
+/* A copy of the sentence travels from one element to another and lands (or shrinks into the target). */
+async function fly(text, from, to, { shrink = false, ms = 700 } = {}) {
+    const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+    const ghost = document.createElement("div");
+    ghost.className = "fly";
+    ghost.textContent = text;
+    const width = Math.min(a.width, 720);
+    ghost.style.left = `${a.left}px`; ghost.style.top = `${a.top}px`; ghost.style.width = `${width}px`;
+    document.body.append(ghost);
+    const dx = b.left - a.left, dy = b.top - a.top;
+    const end = shrink
+        ? { transform: `translate(${dx + b.width / 2 - width / 2}px, ${dy + b.height / 2 - a.height / 2}px) scale(.08)`, opacity: 0 }
+        : { transform: `translate(${dx}px, ${dy}px) scale(${Math.min(1, b.width / width)})`, opacity: 1 };
+    const flight = ghost.animate(
+        [{ transform: "translate(0, 0) scale(1)", opacity: 1, transformOrigin: "left top" },
+         { ...end, transformOrigin: "left top" }],
+        { duration: ms, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" });
+    await flight.finished;
+    ghost.remove();
+}
 
 function markStage(current) {
     const at = current === null ? -1 : STAGES.indexOf(current);
@@ -304,23 +325,30 @@ async function staggerResults() {
 }
 
 async function runQuery(text, pace = SHOWN) {
-    element("query-ticket").textContent = text;
+    const ticket = element("query-ticket");
+    ticket.textContent = text;
+    element("query-vector").classList.remove("shown");
+    ticket.style.visibility = "hidden";
     pace.stage("input");
-    await pace.hold(900);
+    await pace.fly(text, element("query"), ticket);
+    ticket.style.visibility = "";
+    await pace.hold(600);
 
     pace.stage("encoder");
-    element("query-vector").classList.remove("shown");
     await loadModel();
     status("Encoding the sentence…");
+    const flight = pace.fly(text, ticket, element("flow-encoder").querySelector(".net"), { shrink: true, ms: 900 });
     const started = performance.now();
     const vector = await encode(text);
     const encoded = performance.now();
+    await flight;
+    await pace.hold(1500);
     element("query-vector").classList.add("shown");
-    await pace.hold(900);
+    await pace.hold(500);
 
     pace.stage("pool");
     status(`Reading the stored embedding of all ${index.n_clips.toLocaleString()} test clips.`);
-    await pace.hold(900);
+    await pace.hold(1200);
 
     pace.stage("cosine");
     status("Scoring every clip against the sentence.");
@@ -334,7 +362,7 @@ async function runQuery(text, pace = SHOWN) {
     }
     const order = Array.from(scores.keys()).sort((a, b) => scores[b] - scores[a]).slice(0, TOP_K);
     const ranked = performance.now();
-    await pace.hold(900);
+    await pace.hold(2600);
 
     pace.stage("output");
     lastQueryStates = declaredStates.get(normalize(text))?.states ?? null;
@@ -389,7 +417,8 @@ async function walkthrough() {
         await sleep(500);
         await runQuery(text, {
             stage: markStage,
-            hold: (ms) => sleep(ms),
+            fly,
+            hold: (ms) => sleep(Math.round(ms * 1.5)),
             async reveal() {
                 const items = [...element("results").children];
                 items.forEach((item) => { item.style.visibility = "hidden"; });
