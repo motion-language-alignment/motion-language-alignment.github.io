@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Motion–Language Retrieval</title>
+<title>Vehicle Motion–Language Retrieval</title>
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
 <style>
 /* Hallmark · genre: editorial · macrostructure: Workbench · theme: custom
@@ -174,12 +174,12 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 }
 .flow .box {
     position: relative; grid-row: 3; align-self: stretch; min-height: 118px;
-    padding: var(--space-sm) var(--space-sm) var(--space-sm) 50px;
+    padding: var(--space-sm) var(--space-sm) var(--space-sm) 60px;
     border: 1px solid var(--retrieval-edge); background: var(--retrieval-fill); border-radius: 2px;
     transition: opacity 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
 }
 .flow .box svg {
-    position: absolute; left: 14px; top: 14px; width: 24px; height: 24px;
+    position: absolute; left: 14px; top: 13px; width: 32px; height: 32px;
     fill: none; stroke: var(--ink-soft); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
 #flow-input   { border-color: #b3a3d9; background: #eee9f8; }
@@ -196,8 +196,6 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .lines i { display: block; height: 8px; border-radius: 4px; background: oklch(0% 0 0 / .10); }
 .flow .lines i:nth-child(2) { width: 82%; } .flow .lines i:nth-child(3) { width: 58%; }
 .flow .box.active .lines, .flow .box.done .lines { display: none; }
-.flow .formula { margin-top: 10px; font-family: var(--font-num); font-size: var(--text-xs); color: var(--ink-soft);
-                 padding: 5px 9px; border-radius: 3px; background: oklch(100% 0 0 / .55); display: inline-block; white-space: nowrap; }
 .flow .ranklist { margin-top: 10px; display: grid; gap: 6px; counter-reset: rk; }
 .flow .ranklist i { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 8px; counter-increment: rk; }
 .flow .ranklist i::before { content: counter(rk); font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm); color: var(--ink-soft); }
@@ -226,7 +224,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 
 /* the encoder is drawn as a network on the right of its box; while it runs, activations sweep layer by layer */
 .flow .box svg.net { position: static; display: block; width: 100%; max-width: 176px; height: auto;
-                     margin: 6px 0 0 -30px; overflow: visible; stroke: none; }
+                     margin: 6px 0 0 -40px; overflow: visible; stroke: none; }
 .flow .net line { stroke: var(--ink-mute); stroke-width: .7; opacity: .35; }
 .flow .net circle { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1.2; }
 .flow .box.encoder.active .net circle { animation: fire 1200ms var(--ease-out) infinite; }
@@ -265,8 +263,8 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .calc { display: flex; align-items: flex-end; gap: 8px; margin-top: 8px; }
 .flow .calc .op { font-family: var(--font-num); color: var(--ink-soft); font-size: var(--text-sm); line-height: 30px; }
 .flow .bars { display: flex; align-items: flex-end; gap: 4px; height: 30px; }
-.flow .bars i { display: block; width: 11px; height: 100%; background: var(--encoder-edge); transform: scaleY(.06);
-                transform-origin: bottom; opacity: 0; border-radius: 1px; }
+.flow .bars i { display: block; width: 11px; height: 100%; background: var(--encoder-edge); transform: scaleY(var(--h));
+                transform-origin: bottom; opacity: .22; border-radius: 1px; }
 .flow .box.active .bars i { animation: score 2400ms var(--ease-out) infinite; animation-delay: calc(var(--i) * 300ms); }
 .flow .box.done .bars i { transform: scaleY(var(--h)); opacity: 1; }
 .flow .bars i:nth-child(1) { --i: 0; --h: .95; } .flow .bars i:nth-child(2) { --i: 1; --h: .45; }
@@ -274,7 +272,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .bars i:nth-child(5) { --i: 4; --h: .6; }  .flow .bars i:nth-child(6) { --i: 5; --h: .35; }
 .flow .bars i:nth-child(7) { --i: 6; --h: .7; }  .flow .bars i:nth-child(8) { --i: 7; --h: .5; }
 @keyframes score { 0%, 3% { transform: scaleY(.06); opacity: 0; } 12%, 100% { transform: scaleY(var(--h)); opacity: 1; } }
-.flow .calc .qv, .flow .calc .op { opacity: 0; transition: opacity 300ms var(--ease-out); }
+.flow .calc .qv, .flow .calc .op { opacity: .35; transition: opacity 300ms var(--ease-out); }
 .flow .box.active .calc .qv, .flow .box.done .calc .qv, .flow .box.active .calc .op, .flow .box.done .calc .op { opacity: 1; }
 
 /* results and their detail arrive in order */
@@ -433,7 +431,7 @@ canvas { display: block; width: 100%; }
 <div class="column">
 
 <header class="masthead">
-    <h1>Motion–Language Retrieval</h1>
+    <h1>Vehicle Motion–Language Retrieval</h1>
     <div class="standfirst">Live query &middot; anonymous submission</div>
 </header>
 
@@ -488,7 +486,6 @@ its motion vector is matched against 5,670 descriptions.</p>
     <div class="box" id="flow-cosine">
         <svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M4 20L16 6"/><path d="M11 20a7 7 0 0 0-2.4-5.3"/></svg>
         <b>Cosine similarity</b><span>against every test clip</span>
-        <div class="formula" aria-hidden="true">cos θ = q·v / ‖q‖‖v‖</div>
         <div class="calc" aria-hidden="true"><i class="qv"></i><span class="op">·</span>
             <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     </div>
