@@ -51,8 +51,8 @@
     --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 20px;
     --space-lg: 32px; --space-xl: 52px; --space-2xl: 84px;
 
-    --text-xs: 12.5px; --text-sm: 14px; --text-base: 16px;
-    --text-lg: 19px; --text-xl: 27px; --text-display: 44px;
+    --text-xs: 13px; --text-sm: 15px; --text-base: 17px;
+    --text-lg: 20px; --text-xl: 28px; --text-display: 46px;
 
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --dur-short: 120ms;
@@ -78,7 +78,7 @@ h1, h2, h3 { font-family: var(--font-display); font-style: normal; font-weight: 
 p { margin: 0 0 var(--space-sm); }
 b, strong { font-weight: 600; }
 
-.note { color: var(--ink-mute); font-size: var(--text-sm); line-height: 1.65; }
+.note { color: var(--ink-soft); font-size: var(--text-sm); line-height: 1.65; }
 .num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 
 /* ---------------------------------------------------------------- masthead */
@@ -249,8 +249,8 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .bars i:nth-child(5) { --i: 4; --h: .6; }  .flow .bars i:nth-child(6) { --i: 5; --h: .35; }
 .flow .bars i:nth-child(7) { --i: 6; --h: .7; }  .flow .bars i:nth-child(8) { --i: 7; --h: .5; }
 @keyframes score { 0%, 3% { transform: scaleY(.06); opacity: 0; } 12%, 100% { transform: scaleY(var(--h)); opacity: 1; } }
-.flow .calc .qv { opacity: 0; transition: opacity 300ms var(--ease-out); }
-.flow .box.active .calc .qv, .flow .box.done .calc .qv { opacity: 1; }
+.flow .calc .qv, .flow .calc .op { opacity: 0; transition: opacity 300ms var(--ease-out); }
+.flow .box.active .calc .qv, .flow .box.done .calc .qv, .flow .box.active .calc .op, .flow .box.done .calc .op { opacity: 1; }
 
 /* results and their detail arrive in order */
 #results li.enter { animation: enter 360ms var(--ease-out) both; animation-delay: var(--delay, 0ms); }
@@ -376,8 +376,10 @@ canvas { display: block; width: 100%; }
 
 .reading { margin-top: var(--space-2xl); padding-top: var(--space-md); border-top: 1px solid var(--ink); }
 .reading h2 { margin: 0 0 var(--space-xs); font-size: var(--text-lg); }
-.reading .cols { columns: 2 36ch; column-gap: var(--space-xl); }
-.reading .cols p { break-inside: avoid; }
+.reading .cols { columns: 2 36ch; column-gap: var(--space-xl); margin: 0; padding: 0; list-style: none; }
+.reading .cols li { break-inside: avoid; margin: 0 0 var(--space-xs); font-size: var(--text-base); line-height: 1.6;
+                    color: var(--ink-soft); }
+.reading .cols li b { color: var(--ink); }
 .colophon { margin-top: var(--space-xl); padding-top: var(--space-xs);
             border-top: 1px solid var(--rule); font-size: var(--text-xs); color: var(--ink-mute); }
 
@@ -429,7 +431,8 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box encoder" id="flow-encoder">
-                <b>Sentence encoder</b><span>fp16, runs in this browser</span>
+        <svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="13" cy="9" r="2"/><circle cx="13" cy="15" r="2"/><circle cx="20" cy="12" r="2"/><path d="M7 6l4 3M7 12l4-3M7 12l4 3M7 18l4-3M15 9l3 3M15 15l3-3"/></svg>
+        <b>Sentence encoder</b><span>fp16, runs in this browser</span>
         <svg class="net" viewBox="0 0 132 100" aria-hidden="true">
             <g class="l0"><line x1="10" y1="10" x2="48" y2="10"/><line x1="10" y1="10" x2="48" y2="26"/><line x1="10" y1="10" x2="48" y2="42"/><line x1="10" y1="10" x2="48" y2="58"/><line x1="10" y1="10" x2="48" y2="74"/><line x1="10" y1="10" x2="48" y2="90"/><line x1="10" y1="37" x2="48" y2="10"/><line x1="10" y1="37" x2="48" y2="26"/><line x1="10" y1="37" x2="48" y2="42"/><line x1="10" y1="37" x2="48" y2="58"/><line x1="10" y1="37" x2="48" y2="74"/><line x1="10" y1="37" x2="48" y2="90"/><line x1="10" y1="63" x2="48" y2="10"/><line x1="10" y1="63" x2="48" y2="26"/><line x1="10" y1="63" x2="48" y2="42"/><line x1="10" y1="63" x2="48" y2="58"/><line x1="10" y1="63" x2="48" y2="74"/><line x1="10" y1="63" x2="48" y2="90"/><line x1="10" y1="90" x2="48" y2="10"/><line x1="10" y1="90" x2="48" y2="26"/><line x1="10" y1="90" x2="48" y2="42"/><line x1="10" y1="90" x2="48" y2="58"/><line x1="10" y1="90" x2="48" y2="74"/><line x1="10" y1="90" x2="48" y2="90"/></g>
             <g class="l1"><line x1="48" y1="10" x2="86" y2="10"/><line x1="48" y1="10" x2="86" y2="26"/><line x1="48" y1="10" x2="86" y2="42"/><line x1="48" y1="10" x2="86" y2="58"/><line x1="48" y1="10" x2="86" y2="74"/><line x1="48" y1="10" x2="86" y2="90"/><line x1="48" y1="26" x2="86" y2="10"/><line x1="48" y1="26" x2="86" y2="26"/><line x1="48" y1="26" x2="86" y2="42"/><line x1="48" y1="26" x2="86" y2="58"/><line x1="48" y1="26" x2="86" y2="74"/><line x1="48" y1="26" x2="86" y2="90"/><line x1="48" y1="42" x2="86" y2="10"/><line x1="48" y1="42" x2="86" y2="26"/><line x1="48" y1="42" x2="86" y2="42"/><line x1="48" y1="42" x2="86" y2="58"/><line x1="48" y1="42" x2="86" y2="74"/><line x1="48" y1="42" x2="86" y2="90"/><line x1="48" y1="58" x2="86" y2="10"/><line x1="48" y1="58" x2="86" y2="26"/><line x1="48" y1="58" x2="86" y2="42"/><line x1="48" y1="58" x2="86" y2="58"/><line x1="48" y1="58" x2="86" y2="74"/><line x1="48" y1="58" x2="86" y2="90"/><line x1="48" y1="74" x2="86" y2="10"/><line x1="48" y1="74" x2="86" y2="26"/><line x1="48" y1="74" x2="86" y2="42"/><line x1="48" y1="74" x2="86" y2="58"/><line x1="48" y1="74" x2="86" y2="74"/><line x1="48" y1="74" x2="86" y2="90"/><line x1="48" y1="90" x2="86" y2="10"/><line x1="48" y1="90" x2="86" y2="26"/><line x1="48" y1="90" x2="86" y2="42"/><line x1="48" y1="90" x2="86" y2="58"/><line x1="48" y1="90" x2="86" y2="74"/><line x1="48" y1="90" x2="86" y2="90"/></g>
@@ -475,25 +478,18 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 
 <section class="reading">
     <h2>How to read this</h2>
-    <div class="cols">
-    <p class="note">The candidate pool is every held-out test clip, with no filtering by ground-truth
-    label, so clips that disagree with the sentence can and do rank highly. Each clip is a two-second
-    window; the plots and the trajectory add three seconds of context on either side, drawn in grey,
-    with the window itself in colour. Signals are shown at 10&nbsp;Hz, selected from the 50&nbsp;Hz
-    source, and a channel the recording lacks is left as a gap rather than filled with zero. The
-    bird's-eye trajectory turns the heading at the start of the context to point up; the vehicle
-    outline is schematic, not a measured dimension. Only the six ontology labels are ground truth, and
-    a category recorded as unknown stays unknown: it is never counted as agreement.</p>
-    <p class="note">A sentence drawn from the fixed evaluation set carries declared states, so the
-    table can compare them against each clip. A sentence you write yourself declares nothing, and the
-    table then reports the clip's labels without a verdict.</p>
-    <p class="note">Motion-to-Text ranks the clip's stored motion embedding against the stored sentence
-    embeddings of the 5,670 descriptions that name one state in every category, the candidate pool of the
-    paper's Motion-to-Text evaluation. The six states attached to the top description are the predicted
-    motion classes; a green chip agrees with the clip's label, a red chip does not, and a dashed chip
-    names a category the clip has no valid label for. No encoder runs in this direction, so it works
-    before the 669&nbsp;MB download.</p>
-    </div>
+    <ul class="cols">
+        <li><b>Candidates.</b> All 3,623 held-out test clips, unfiltered: a clip that contradicts the sentence can still
+            rank high.</li>
+        <li><b>Clip view.</b> The 2-second window is drawn in colour with 3 seconds of grey context on each side.
+            Signals are shown at 10&nbsp;Hz; a channel the recording lacks is left blank.</li>
+        <li><b>GT label.</b> The six ontology labels are ground truth. An unknown category is never counted as a match.</li>
+        <li><b>Requested.</b> An example sentence carries declared states, so each clip gets a verdict. A sentence you
+            type shows the clip labels only.</li>
+        <li><b>Motion-to-Text.</b> The clip's stored embedding is ranked against 5,670 complete descriptions; the top
+            one's six states are the prediction. Green agrees with the label, red differs, dashed has no valid label.
+            No encoder runs, so it works before the download.</li>
+    </ul>
 </section>
 
 <p class="colophon">Sentence encoder, motion embeddings and description embeddings from one trained
