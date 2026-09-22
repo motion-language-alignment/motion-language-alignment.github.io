@@ -149,7 +149,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .examples button:focus-visible { outline: 2px solid var(--encoder-edge); outline-offset: 3px; }
 
 #status {
-    margin-top: var(--space-md); max-width: 78ch;
+    margin-top: var(--space-md); max-width: 920px;
     font-size: var(--text-sm); color: var(--ink-soft); min-height: 2.6em;
 }
 #progress { max-width: 860px; height: 2px; margin-top: var(--space-2xs);
@@ -296,9 +296,10 @@ canvas { display: block; width: 100%; }
 
 /* ---------------------------------------------------------------- close */
 
-.reading { max-width: 72ch; margin-top: var(--space-2xl);
-           padding-top: var(--space-md); border-top: 1px solid var(--ink); }
+.reading { margin-top: var(--space-2xl); padding-top: var(--space-md); border-top: 1px solid var(--ink); }
 .reading h2 { margin: 0 0 var(--space-xs); font-size: var(--text-lg); }
+.reading .cols { columns: 2 36ch; column-gap: var(--space-xl); }
+.reading .cols p { break-inside: avoid; }
 .colophon { margin-top: var(--space-xl); padding-top: var(--space-xs);
             border-top: 1px solid var(--rule); font-size: var(--text-xs); color: var(--ink-mute); }
 
@@ -380,6 +381,7 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 
 <section class="reading">
     <h2>How to read this</h2>
+    <div class="cols">
     <p class="note">The candidate pool is every held-out test clip, with no filtering by ground-truth
     label, so clips that disagree with the sentence can and do rank highly. Each clip is a two-second
     window; the plots and the trajectory add three seconds of context on either side, drawn in grey,
@@ -397,12 +399,13 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     motion classes; a green chip agrees with the clip's label, a red chip does not, and a dashed chip
     names a category the clip has no valid label for. No encoder runs in this direction, so it works
     before the 669&nbsp;MB download.</p>
+    </div>
 </section>
 
 <p class="colophon">Sentence encoder, motion embeddings and description embeddings from one trained
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=7d457994"></script>
 </body>
 </html>
