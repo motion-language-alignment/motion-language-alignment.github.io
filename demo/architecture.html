@@ -6,11 +6,11 @@
 <title>System Architecture</title>
 <style>
 /* Figure 1 of the paper redrawn as one left-to-right pipeline. Inline SVG and CSS only.
-   Every animation runs 8 s and loops; order comes from animation-delay alone. Blocks not yet
-   reached stay at opacity .12 so the whole structure is always legible. Colours are the PPTX's. */
+   One 18 s cycle: stages appear left to right and stay, the stage under discussion glows, a caption
+   bar names what is happening, the full figure holds, then everything resets. Colours are the PPTX's. */
 
 :root {
-    --cycle: 8s;
+    --cycle: 18s;
     --paper: #fbfbfc;
     --ink: #1f2530;
     --mute: #7a8494;
@@ -28,44 +28,92 @@ body { display: grid; place-items: center; min-height: 100vh; padding: 24px 16px
 svg { width: min(100%, 1600px); height: auto; display: block;
       font-family: Georgia, "Times New Roman", serif; }
 
-/* ---------------- shared keyframes: dim, rise, hold, fall. Only the delay differs per element. */
-.stage { opacity: .12; animation: lit var(--cycle) linear infinite both; }
-@keyframes lit {
-    0%    { opacity: .12; }
-    3%    { opacity: 1; }
-    17%   { opacity: 1; }
-    21%   { opacity: .12; }
-    100%  { opacity: .12; }
-}
-/* arrows draw in as a line, hold, then fade */
-.flow { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
-        animation: draw var(--cycle) linear infinite both; }
-@keyframes draw {
-    0%    { stroke-dashoffset: 1; opacity: 1; }
-    6%    { stroke-dashoffset: 0; opacity: 1; }
-    15%   { stroke-dashoffset: 0; opacity: 1; }
-    20%   { stroke-dashoffset: 0; opacity: 0; }
-    100%  { stroke-dashoffset: 1; opacity: 0; }
-}
-.head { opacity: 0; animation: tip var(--cycle) linear infinite both; }
-@keyframes tip { 0%, 5% { opacity: 0; } 7%, 15% { opacity: 1; } 20%, 100% { opacity: 0; } }
-/* a faint copy of every arrow so the wiring is always visible */
-.wire { stroke: var(--ink); stroke-width: 2; fill: none; opacity: .12; }
+/* ---------------- timeline: stage k rises at [3, 12, 21, 30, 39, 48, 57, 66]% of the cycle and stays; all reset together at 92% */
+.stage { opacity: 0; animation-duration: var(--cycle); animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both; }
+.flow  { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; animation-duration: var(--cycle); animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both; }
+.head, .caption, .bar { opacity: 0; animation-duration: var(--cycle); animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both; }
+.wire { stroke: var(--ink); stroke-width: 2; fill: none; opacity: .10; }
+.glow .box { animation-duration: var(--cycle); animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both; }
 
-/* stage k starts at k * 0.85 s; arrows between k and k+1 start 0.55 s later */
-.s0 { animation-delay: 0s; }   .a0 { animation-delay: .55s; }
-.s1 { animation-delay: .85s; } .a1 { animation-delay: 1.4s; }
-.s2 { animation-delay: 1.7s; } .a2 { animation-delay: 2.25s; }
-.s3 { animation-delay: 2.55s; } .a3 { animation-delay: 3.1s; }
-.s4 { animation-delay: 3.4s; } .a4 { animation-delay: 3.95s; }
-.s5 { animation-delay: 4.25s; } .a5 { animation-delay: 4.8s; }
-.s6 { animation-delay: 5.1s; } .a6 { animation-delay: 5.65s; }
-.s7 { animation-delay: 5.95s; }
+.s0 { animation-name: rise0; }
+.bar { animation-name: rise0; }
+@keyframes rise0 { 0%, 3% { opacity: 0; } 6%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g0 .box { animation-name: glow0; }
+@keyframes glow0 { 0%, 3% { filter: none; } 6%, 11% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 13%, 100% { filter: none; } }
+.a0 { animation-name: draw0; }
+@keyframes draw0 { 0%, 7% { stroke-dashoffset: 1; opacity: 1; } 10%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a0 { animation-name: tip0; }
+@keyframes tip0 { 0%, 9% { opacity: 0; } 10%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s1 { animation-name: rise1; }
+@keyframes rise1 { 0%, 12% { opacity: 0; } 15%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g1 .box { animation-name: glow1; }
+@keyframes glow1 { 0%, 12% { filter: none; } 15%, 20% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 22%, 100% { filter: none; } }
+.a1 { animation-name: draw1; }
+@keyframes draw1 { 0%, 16% { stroke-dashoffset: 1; opacity: 1; } 19%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a1 { animation-name: tip1; }
+@keyframes tip1 { 0%, 18% { opacity: 0; } 19%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s2 { animation-name: rise2; }
+@keyframes rise2 { 0%, 21% { opacity: 0; } 24%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g2 .box { animation-name: glow2; }
+@keyframes glow2 { 0%, 21% { filter: none; } 24%, 29% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 31%, 100% { filter: none; } }
+.a2 { animation-name: draw2; }
+@keyframes draw2 { 0%, 25% { stroke-dashoffset: 1; opacity: 1; } 28%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a2 { animation-name: tip2; }
+@keyframes tip2 { 0%, 27% { opacity: 0; } 28%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s3 { animation-name: rise3; }
+@keyframes rise3 { 0%, 30% { opacity: 0; } 33%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g3 .box { animation-name: glow3; }
+@keyframes glow3 { 0%, 30% { filter: none; } 33%, 38% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 40%, 100% { filter: none; } }
+.a3 { animation-name: draw3; }
+@keyframes draw3 { 0%, 34% { stroke-dashoffset: 1; opacity: 1; } 37%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a3 { animation-name: tip3; }
+@keyframes tip3 { 0%, 36% { opacity: 0; } 37%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s4 { animation-name: rise4; }
+@keyframes rise4 { 0%, 39% { opacity: 0; } 42%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g4 .box { animation-name: glow4; }
+@keyframes glow4 { 0%, 39% { filter: none; } 42%, 47% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 49%, 100% { filter: none; } }
+.a4 { animation-name: draw4; }
+@keyframes draw4 { 0%, 43% { stroke-dashoffset: 1; opacity: 1; } 46%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a4 { animation-name: tip4; }
+@keyframes tip4 { 0%, 45% { opacity: 0; } 46%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s5 { animation-name: rise5; }
+@keyframes rise5 { 0%, 48% { opacity: 0; } 51%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g5 .box { animation-name: glow5; }
+@keyframes glow5 { 0%, 48% { filter: none; } 51%, 56% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 58%, 100% { filter: none; } }
+.a5 { animation-name: draw5; }
+@keyframes draw5 { 0%, 52% { stroke-dashoffset: 1; opacity: 1; } 55%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a5 { animation-name: tip5; }
+@keyframes tip5 { 0%, 54% { opacity: 0; } 55%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s6 { animation-name: rise6; }
+@keyframes rise6 { 0%, 57% { opacity: 0; } 60%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g6 .box { animation-name: glow6; }
+@keyframes glow6 { 0%, 57% { filter: none; } 60%, 65% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 67%, 100% { filter: none; } }
+.a6 { animation-name: draw6; }
+@keyframes draw6 { 0%, 61% { stroke-dashoffset: 1; opacity: 1; } 64%, 92% { stroke-dashoffset: 0; opacity: 1; } 96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+.head.a6 { animation-name: tip6; }
+@keyframes tip6 { 0%, 63% { opacity: 0; } 64%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.s7 { animation-name: rise7; }
+@keyframes rise7 { 0%, 66% { opacity: 0; } 69%, 92% { opacity: 1; } 96%, 100% { opacity: 0; } }
+.g7 .box { animation-name: glow7; }
+@keyframes glow7 { 0%, 66% { filter: none; } 69%, 91% { filter: drop-shadow(0 0 7px rgba(61, 158, 142, .55)); } 93%, 100% { filter: none; } }
+.c0 { animation-name: cap0; }
+@keyframes cap0 { 0%, 3% { opacity: 0; } 4.5%, 10.5% { opacity: 1; } 12%, 100% { opacity: 0; } }
+.c1 { animation-name: cap1; }
+@keyframes cap1 { 0%, 12% { opacity: 0; } 13.5%, 19.5% { opacity: 1; } 21%, 100% { opacity: 0; } }
+.c2 { animation-name: cap2; }
+@keyframes cap2 { 0%, 21% { opacity: 0; } 22.5%, 37.5% { opacity: 1; } 39%, 100% { opacity: 0; } }
+.c3 { animation-name: cap3; }
+@keyframes cap3 { 0%, 39% { opacity: 0; } 40.5%, 55.5% { opacity: 1; } 57%, 100% { opacity: 0; } }
+.c4 { animation-name: cap4; }
+@keyframes cap4 { 0%, 57% { opacity: 0; } 58.5%, 64.5% { opacity: 1; } 66%, 100% { opacity: 0; } }
+.c5 { animation-name: cap5; }
+@keyframes cap5 { 0%, 66% { opacity: 0; } 67.5%, 90.5% { opacity: 1; } 92%, 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .stage { animation: none; opacity: 1; }
+    .stage, .head { animation: none; opacity: 1; }
     .flow { animation: none; stroke-dashoffset: 0; opacity: 1; }
-    .head { animation: none; opacity: 1; }
+    .glow .box { animation: none; }
+    .caption { animation: none; opacity: 0; } .bar { animation: none; opacity: 1; } .caption.c5 { opacity: 1; }
     .wire { display: none; }
 }
 
@@ -78,13 +126,15 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 .small  { fill: var(--ink); font-size: 17px; text-anchor: middle; }
 .cap    { fill: var(--mute); font-size: 16px; text-anchor: middle; letter-spacing: .04em; }
 .title  { fill: var(--ink); font-size: 20px; font-weight: bold; text-anchor: middle; }
+.title-row { fill: var(--ink); font-size: 26px; font-weight: bold; text-anchor: start; letter-spacing: -0.01em; }
+.bar-text { fill: #fff; font-size: 20px; text-anchor: middle; font-family: system-ui, "Segoe UI", sans-serif; }
 .icon   { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .flow, .head { stroke: var(--ink); stroke-width: 2.5; fill: none; }
 .head { fill: var(--ink); stroke: none; }
 </style>
 </head>
 <body>
-<svg viewBox="0 0 1920 600" role="img"
+<svg viewBox="0 0 1920 640" role="img"
      aria-label="Pipeline from driving data and ontology, through labeling, pair matching and the motion-language dataset, to two encoders, cosine similarity, multi-positive contrastive loss, and bidirectional retrieval">
 
 <!-- ====================================================== faint wiring, always visible -->
@@ -99,7 +149,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 </g>
 
 <!-- ====================================================== stage 0 · inputs -->
-<g class="stage s0">
+<g class="stage s0 glow g0">
     <text class="cap" x="140" y="70">INPUT</text>
     <rect class="box purple" x="48" y="100" width="184" height="140"/>
     <text class="label" x="140" y="140">Driving</text>
@@ -124,7 +174,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a0" pathLength="1" d="M232 430 H300"/><path class="head a0" d="M300 424 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 1 · labeling / description -->
-<g class="stage s1">
+<g class="stage s1 glow g1">
     <text class="cap" x="436" y="70">DATASET CONSTRUCTION</text>
     <rect class="box purple" x="312" y="110" width="248" height="120"/>
     <text class="label" x="436" y="160">Vehicle-Dynamics</text>
@@ -137,7 +187,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a1" pathLength="1" d="M560 430 H600 V318 H640"/><path class="head a1" d="M640 312 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 2 · pair matching -->
-<g class="stage s2">
+<g class="stage s2 glow g2">
     <rect class="box purple" x="652" y="230" width="168" height="140"/>
     <text class="label" x="736" y="290">Pair</text>
     <text class="label" x="736" y="318">Matching</text>
@@ -150,7 +200,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a2" pathLength="1" d="M820 300 H880"/><path class="head a2" d="M880 294 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 3 · dataset -->
-<g class="stage s3">
+<g class="stage s3 glow g3">
     <rect class="box purple" x="892" y="180" width="248" height="240"/>
     <text class="label" x="1016" y="220">Motion-Language</text>
     <text class="label" x="1016" y="248">Dataset</text>
@@ -174,7 +224,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a3" pathLength="1" d="M1140 300 H1180 V378 H1210"/><path class="head a3" d="M1210 372 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 4 · encoders -->
-<g class="stage s4">
+<g class="stage s4 glow g4">
     <text class="cap" x="1330" y="70">ALIGNMENT</text>
     <rect class="box teal" x="1222" y="162" width="160" height="120"/>
     <text class="label" x="1302" y="212">Motion</text>
@@ -195,7 +245,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a4" pathLength="1" d="M1420 378 H1470 V318 H1500"/><path class="head a4" d="M1500 312 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 5 · cosine + pos/neg check -->
-<g class="stage s5">
+<g class="stage s5 glow g5">
     <rect class="box teal" x="1512" y="200" width="138" height="200"/>
     <text class="label" x="1581" y="244">Cosine</text>
     <text class="label" x="1581" y="272">Similarity</text>
@@ -215,7 +265,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a5" pathLength="1" d="M1650 300 H1690"/><path class="head a5" d="M1690 294 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 6 · loss -->
-<g class="stage s6">
+<g class="stage s6 glow g6">
     <rect class="box teal" x="1702" y="230" width="196" height="140"/>
     <text class="label" x="1800" y="278">Multi-Positive</text>
     <text class="label" x="1800" y="306">Contrastive</text>
@@ -225,7 +275,7 @@ svg { width: min(100%, 1600px); height: auto; display: block;
 <path class="flow a6" pathLength="1" d="M1690 300 V460 H1720"/><path class="head a6" d="M1720 454 l12 6 -12 6z"/>
 
 <!-- ====================================================== stage 7 · retrieval (inference) -->
-<g class="stage s7">
+<g class="stage s7 glow g7">
     <text class="cap" x="1800" y="70">RETRIEVAL</text>
     <rect class="box beige" x="1732" y="98" width="166" height="84"/>
     <text class="small" x="1815" y="128">Text-to-Motion</text>
@@ -235,8 +285,18 @@ svg { width: min(100%, 1600px); height: auto; display: block;
     <text class="label" x="1815" y="480">Motion States</text>
 </g>
 
-<!-- ====================================================== caption row -->
-<text class="cap" x="960" y="566">Ontology-grounded pipeline · IMU and CAN only at inference · one cycle 8 s</text>
+<!-- ====================================================== title and caption bar -->
+<text class="title-row" x="48" y="42">Aligning Vehicle Motion with Language</text>
+<text class="cap" x="1872" y="42" style="text-anchor:end">IMU + CAN only at inference</text>
+<g>
+    <rect class="bar" x="360" y="566" width="1200" height="48" rx="8" fill="var(--ink)"/>
+    <text class="caption c0 bar-text" x="960" y="598">IMU and CAN recordings meet the Vehicle Motion Ontology</text>
+    <text class="caption c1 bar-text" x="960" y="598">Vehicle-dynamics rules label each 2-second clip; an LLM writes and verifies descriptions</text>
+    <text class="caption c2 bar-text" x="960" y="598">A clip pairs with every description consistent with its labeled states</text>
+    <text class="caption c3 bar-text" x="960" y="598">Two encoders, one embedding space; the ontology names positives and hard negatives</text>
+    <text class="caption c4 bar-text" x="960" y="598">Multi-positive contrastive loss trains both encoders</text>
+    <text class="caption c5 bar-text" x="960" y="598">Inference uses IMU and CAN only: text finds motion, motion finds text</text>
+</g>
 </svg>
 </body>
 </html>

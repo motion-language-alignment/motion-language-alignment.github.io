@@ -104,23 +104,29 @@ b, strong { font-weight: 600; }
 /* ---------------------------------------------------------------- query */
 
 .ask { display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-xs); max-width: 920px; }
+.ask .field { position: relative; }
+.ask .field svg {
+    position: absolute; left: 14px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%);
+    fill: none; stroke: var(--ink-mute); stroke-width: 2; stroke-linecap: round; pointer-events: none;
+}
+.ask label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
 #query {
-    font-family: var(--font-body); font-size: var(--text-lg); color: var(--ink);
-    padding: var(--space-sm) 0; background: transparent;
-    border: 0; border-bottom: 2px solid var(--ink);
-    transition: border-color var(--dur-short) var(--ease-out);
+    width: 100%; font-family: var(--font-body); font-size: var(--text-lg); color: var(--ink);
+    padding: var(--space-sm) var(--space-md) var(--space-sm) 44px; background: var(--paper);
+    border: 1.5px solid var(--rule-strong); border-radius: 4px;
+    transition: border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
 }
 #query::placeholder { color: var(--ink-mute); }
-#query:hover { border-bottom-color: var(--encoder-edge); }
-#query:focus-visible { outline: 2px solid var(--encoder-edge); outline-offset: 4px; }
-#query:disabled { color: var(--ink-mute); border-bottom-style: dashed; }
+#query:hover { border-color: var(--ink-soft); }
+#query:focus-visible { outline: none; border-color: var(--encoder-edge); box-shadow: 0 0 0 3px var(--encoder-fill); }
+#query:disabled { color: var(--ink-mute); border-style: dashed; background: var(--paper-sunk); }
 
 #search {
     font-family: var(--font-body); font-size: var(--text-base); font-weight: 600;
     white-space: nowrap; padding: 0 var(--space-md); cursor: pointer;
     color: oklch(32% 0.07 176); background: var(--encoder-fill);
-    border: 1px solid var(--encoder-edge); border-radius: 2px;
+    border: 1.5px solid var(--encoder-edge); border-radius: 4px;
     transition: background-color var(--dur-short) var(--ease-out),
                 transform 90ms var(--ease-out);
 }
@@ -131,7 +137,7 @@ b, strong { font-weight: 600; }
                    border-color: var(--rule); }
 
 button.secondary { color: var(--ink-soft); background: var(--paper); border-color: var(--rule-strong);
-                   font-weight: 400; }
+                   font-weight: 400; border-radius: 4px; }
 button.secondary:hover:not(:disabled) { background: var(--paper-sunk); border-color: var(--ink-soft); }
 button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); background: var(--paper-sunk); }
 
@@ -330,8 +336,12 @@ sentence encoder and ranks every held-out test clip by cosine similarity. Open a
 reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 
 <div class="ask">
-    <input id="query" type="text" autocomplete="off" spellcheck="false"
-           placeholder="The vehicle moves at a high speed while exhibiting oversteer.">
+    <div class="field">
+        <label for="query">Describe a vehicle motion</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+        <input id="query" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Describe a vehicle motion, e.g. high speed with oversteer">
+    </div>
     <button id="search">Search</button>
     <button id="walkthrough" class="secondary">Walk through it</button>
 </div>
