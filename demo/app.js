@@ -281,19 +281,30 @@ async function encode(text) {
 const STAGES = ["input", "encoder", "pool", "cosine", "output"];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/* The walkthrough paces the stages; a plain search leaves them at their natural speed. */
+/* A plain search shows each stage briefly; the walkthrough holds them longer and types the sentence. */
+const SHOWN = { stage: markStage, hold: (ms) => sleep(Math.round(ms * 0.55)), reveal: staggerResults };
 const IMMEDIATE = { stage() {}, async hold() {}, async reveal() {} };
 
 function markStage(current) {
+    const at = current === null ? -1 : STAGES.indexOf(current);
     STAGES.forEach((name, position) => {
         const box = element(`flow-${name}`);
         box.classList.toggle("active", name === current);
-        box.classList.toggle("done", current !== null && position < STAGES.indexOf(current));
+        box.classList.toggle("done", current !== null && position < at);
         if (current === null) box.classList.remove("done");
     });
+    // arrows light up once the stage they lead to has been reached
+    document.querySelectorAll(".flow .arrow").forEach((arrow, k) => arrow.classList.toggle("lit", k < at));
 }
 
-async function runQuery(text, pace = IMMEDIATE) {
+async function staggerResults() {
+    const items = [...element("results").children];
+    items.forEach((item, i) => { item.classList.add("enter"); item.style.setProperty("--delay", `${i * 70}ms`); });
+    await sleep(items.length * 70 + 300);
+}
+
+async function runQuery(text, pace = SHOWN) {
+    element("query-ticket").textContent = text;
     pace.stage("input");
     await pace.hold(900);
 
@@ -313,6 +324,7 @@ async function runQuery(text, pace = IMMEDIATE) {
 
     pace.stage("cosine");
     status("Scoring every clip against the sentence.");
+    const scoring = performance.now();
     const scores = new Float32Array(index.n_clips);
     for (let i = 0; i < index.n_clips; i++) {
         let dot = 0;
@@ -333,7 +345,7 @@ async function runQuery(text, pace = IMMEDIATE) {
     await pace.hold(1200);
     markStage(null);
     status(`Encoded in ${Math.round(encoded - started)} ms, `
-           + `ranked ${index.n_clips.toLocaleString()} clips in ${Math.round(ranked - encoded)} ms. `
+           + `ranked ${index.n_clips.toLocaleString()} clips in ${Math.round(ranked - scoring)} ms. `
            + (lastQueryStates
               ? "This sentence is one of the fixed evaluation queries, so its declared states are compared below."
               : "This sentence has no declared states, so the clip labels are shown without a comparison."));

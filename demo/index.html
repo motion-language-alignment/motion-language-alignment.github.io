@@ -186,6 +186,50 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow:has(.active) .box:not(.active) { opacity: .42; }
 .flow .box.active { opacity: 1; box-shadow: 0 0 0 2px var(--encoder-edge); }
 .flow .box.done { opacity: .72; }
+.flow .arrow { transition: color 200ms var(--ease-out); }
+.flow .arrow.lit { color: var(--encoder-edge); }
+
+/* the typed sentence rides along in the first box */
+.flow .ticket { display: none; margin-top: 6px; padding: 2px 8px; font-size: var(--text-sm); line-height: 1.4;
+                color: var(--ink); background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 3px;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.flow .box.active .ticket, .flow .box.done .ticket { display: block; }
+.flow .box.active .ticket { animation: ticket-in 320ms var(--ease-out) both; }
+@keyframes ticket-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+
+/* the encoder is drawn as a small network; while it runs, activations sweep layer by layer */
+.flow .net { position: absolute; left: 10px; top: 12px; width: 32px; height: 30px; }
+.flow .net line { stroke: var(--ink-soft); stroke-width: .6; opacity: .45; }
+.flow .net circle { fill: var(--paper); stroke: var(--ink-soft); stroke-width: 1; }
+.flow .box.encoder svg.net { fill: none; }
+.flow .box.encoder.active .net circle { animation: fire 900ms var(--ease-out) infinite; }
+.flow .box.encoder.active .net line { animation: spark 900ms linear infinite; }
+.flow .net .l0 { animation-delay: 0ms !important; } .flow .net .l1 { animation-delay: 220ms !important; }
+.flow .net .l2 { animation-delay: 440ms !important; } .flow .net .l3 { animation-delay: 660ms !important; }
+@keyframes fire { 0%, 100% { fill: var(--paper); stroke: var(--ink-soft); }
+                  25% { fill: var(--encoder-edge); stroke: var(--encoder-edge); } }
+@keyframes spark { 0%, 100% { stroke: var(--ink-soft); opacity: .45; } 30% { stroke: var(--encoder-edge); opacity: 1; } }
+
+/* the pool is read top to bottom while the scores fill in */
+.flow .scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--encoder-edge); opacity: 0; }
+.flow .box.active .scan { animation: scan 700ms linear infinite; }
+@keyframes scan { 0% { top: 0; opacity: .9; } 100% { top: calc(100% - 2px); opacity: .9; } }
+.flow .bars { position: absolute; right: 12px; bottom: 10px; display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+.flow .bars i { display: block; width: 5px; height: 100%; background: var(--encoder-edge); transform: scaleY(.1);
+                transform-origin: bottom; opacity: 0; }
+.flow .box.active .bars i { animation: score 600ms var(--ease-out) infinite alternate; }
+.flow .box.done .bars i { transform: scaleY(var(--h)); opacity: 1; }
+.flow .bars i:nth-child(1) { --h: .95; animation-delay: 0ms; }  .flow .bars i:nth-child(2) { --h: .55; animation-delay: 80ms; }
+.flow .bars i:nth-child(3) { --h: .8; animation-delay: 160ms; } .flow .bars i:nth-child(4) { --h: .3; animation-delay: 240ms; }
+.flow .bars i:nth-child(5) { --h: .65; animation-delay: 320ms; }
+@keyframes score { from { transform: scaleY(.1); opacity: .35; } to { transform: scaleY(var(--h)); opacity: 1; } }
+
+/* results and their detail arrive in order */
+#results li.enter { animation: enter 360ms var(--ease-out) both; animation-delay: var(--delay, 0ms); }
+@keyframes enter { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+    .flow .net circle, .flow .net line, .flow .scan, .flow .bars i, .flow .ticket, #results li.enter { animation: none !important; }
+}
 .flow .arrow { grid-row: 3; color: var(--ink-mute); font-size: var(--text-xl); line-height: 1; }
 .flow #flow-pool { grid-row: 1; grid-column: 5; align-self: end; }
 .flow .arrow.down { grid-row: 2; grid-column: 5; justify-self: center; padding: 2px 0; }
@@ -354,10 +398,19 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <div class="box" id="flow-input">
         <svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>
         <b>Text query</b><span>your sentence</span>
+        <div class="ticket" id="query-ticket"></div>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box encoder" id="flow-encoder">
-        <svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="13" cy="9" r="2"/><circle cx="13" cy="15" r="2"/><circle cx="20" cy="12" r="2"/><path d="M7 6l4 3M7 12l4-3M7 12l4 3M7 18l4-3M15 9l3 3M15 15l3-3"/></svg>
+        <svg class="net" viewBox="0 0 32 30" aria-hidden="true">
+            <g class="l0"><line x1="3" y1="5" x2="12" y2="4"/><line x1="3" y1="5" x2="12" y2="12"/><line x1="3" y1="15" x2="12" y2="12"/><line x1="3" y1="15" x2="12" y2="20"/><line x1="3" y1="25" x2="12" y2="20"/><line x1="3" y1="25" x2="12" y2="27"/></g>
+            <g class="l1"><line x1="12" y1="4" x2="21" y2="8"/><line x1="12" y1="12" x2="21" y2="8"/><line x1="12" y1="12" x2="21" y2="16"/><line x1="12" y1="20" x2="21" y2="16"/><line x1="12" y1="20" x2="21" y2="24"/><line x1="12" y1="27" x2="21" y2="24"/></g>
+            <g class="l2"><line x1="21" y1="8" x2="29" y2="15"/><line x1="21" y1="16" x2="29" y2="15"/><line x1="21" y1="24" x2="29" y2="15"/></g>
+            <circle class="l0" cx="3" cy="5" r="2.2"/><circle class="l0" cx="3" cy="15" r="2.2"/><circle class="l0" cx="3" cy="25" r="2.2"/>
+            <circle class="l1" cx="12" cy="4" r="2.2"/><circle class="l1" cx="12" cy="12" r="2.2"/><circle class="l1" cx="12" cy="20" r="2.2"/><circle class="l1" cx="12" cy="27" r="2.2"/>
+            <circle class="l2" cx="21" cy="8" r="2.2"/><circle class="l2" cx="21" cy="16" r="2.2"/><circle class="l2" cx="21" cy="24" r="2.2"/>
+            <circle class="l3" cx="29" cy="15" r="2.2"/>
+        </svg>
         <b>Sentence encoder</b><span>fp16, runs in this browser</span>
         <i class="vector" id="query-vector" title="query embedding, 256 dimensions"><span></span><span></span><span></span><span></span></i>
     </div>
@@ -365,11 +418,13 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <div class="box" id="flow-pool">
         <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
         <b>Motion embeddings</b><span>IMU + CAN clips, motion-encoded</span><span id="pool-size"></span>
+        <div class="scan"></div>
     </div>
     <div class="arrow down">&darr;</div>
     <div class="box" id="flow-cosine">
         <svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M4 20L16 6"/><path d="M11 20a7 7 0 0 0-2.4-5.3"/></svg>
         <b>Cosine similarity</b><span>against every test clip</span>
+        <div class="bars"><i></i><i></i><i></i><i></i><i></i></div>
     </div>
     <div class="arrow">&rarr;</div>
     <div class="box" id="flow-output">
@@ -416,6 +471,6 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js?v=6ff8d097"></script>
+<script type="module" src="app.js?v=ef4e670a"></script>
 </body>
 </html>
