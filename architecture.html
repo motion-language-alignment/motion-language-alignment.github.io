@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Architecture</title>
+<style>
+/* Figure 1 of the paper redrawn as one left-to-right pipeline. Inline SVG and CSS only.
+   Every animation runs 8 s and loops; order comes from animation-delay alone. Blocks not yet
+   reached stay at opacity .12 so the whole structure is always legible. Colours are the PPTX's. */
+
+:root {
+    --cycle: 8s;
+    --paper: #fbfbfc;
+    --ink: #1f2530;
+    --mute: #7a8494;
+    --rule: #a6a6a6;
+    --purple: #eee9f8; --purple-edge: #b3a3d9;
+    --teal: #e4f3f0;   --teal-edge: #3d9e8e;   --teal-ink: #2e8b7a;
+    --beige: #faf6ee;  --beige-edge: #c9b48a;
+    --blue: #c4dff2;   --blue-edge: #6fa8d6;
+    --orange: #f6dbc6; --orange-edge: #d19a6e;
+    --green: #cfe9d1;  --green-edge: #7fb886;
+    --hard: #ec8a3c;
+}
+html, body { margin: 0; background: var(--paper); }
+body { display: grid; place-items: center; min-height: 100vh; padding: 24px 16px; box-sizing: border-box; }
+svg { width: min(100%, 1600px); height: auto; display: block;
+      font-family: Georgia, "Times New Roman", serif; }
+
+/* ---------------- shared keyframes: dim, rise, hold, fall. Only the delay differs per element. */
+.stage { opacity: .12; animation: lit var(--cycle) linear infinite both; }
+@keyframes lit {
+    0%    { opacity: .12; }
+    3%    { opacity: 1; }
+    17%   { opacity: 1; }
+    21%   { opacity: .12; }
+    100%  { opacity: .12; }
+}
+/* arrows draw in as a line, hold, then fade */
+.flow { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+        animation: draw var(--cycle) linear infinite both; }
+@keyframes draw {
+    0%    { stroke-dashoffset: 1; opacity: 1; }
+    6%    { stroke-dashoffset: 0; opacity: 1; }
+    15%   { stroke-dashoffset: 0; opacity: 1; }
+    20%   { stroke-dashoffset: 0; opacity: 0; }
+    100%  { stroke-dashoffset: 1; opacity: 0; }
+}
+.head { opacity: 0; animation: tip var(--cycle) linear infinite both; }
+@keyframes tip { 0%, 5% { opacity: 0; } 7%, 15% { opacity: 1; } 20%, 100% { opacity: 0; } }
+/* a faint copy of every arrow so the wiring is always visible */
+.wire { stroke: var(--ink); stroke-width: 2; fill: none; opacity: .12; }
+
+/* stage k starts at k * 0.85 s; arrows between k and k+1 start 0.55 s later */
+.s0 { animation-delay: 0s; }   .a0 { animation-delay: .55s; }
+.s1 { animation-delay: .85s; } .a1 { animation-delay: 1.4s; }
+.s2 { animation-delay: 1.7s; } .a2 { animation-delay: 2.25s; }
+.s3 { animation-delay: 2.55s; } .a3 { animation-delay: 3.1s; }
+.s4 { animation-delay: 3.4s; } .a4 { animation-delay: 3.95s; }
+.s5 { animation-delay: 4.25s; } .a5 { animation-delay: 4.8s; }
+.s6 { animation-delay: 5.1s; } .a6 { animation-delay: 5.65s; }
+.s7 { animation-delay: 5.95s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .stage { animation: none; opacity: 1; }
+    .flow { animation: none; stroke-dashoffset: 0; opacity: 1; }
+    .head { animation: none; opacity: 1; }
+    .wire { display: none; }
+}
+
+/* ---------------- drawing */
+.box { stroke-width: 2; rx: 10; }
+.purple { fill: var(--purple); stroke: var(--purple-edge); }
+.teal   { fill: var(--teal);   stroke: var(--teal-edge); }
+.beige  { fill: var(--beige);  stroke: var(--beige-edge); }
+.label  { fill: var(--ink); font-size: 22px; text-anchor: middle; }
+.small  { fill: var(--ink); font-size: 17px; text-anchor: middle; }
+.cap    { fill: var(--mute); font-size: 16px; text-anchor: middle; letter-spacing: .04em; }
+.title  { fill: var(--ink); font-size: 20px; font-weight: bold; text-anchor: middle; }
+.icon   { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.flow, .head { stroke: var(--ink); stroke-width: 2.5; fill: none; }
+.head { fill: var(--ink); stroke: none; }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1920 600" role="img"
+     aria-label="Pipeline from driving data and ontology, through labeling, pair matching and the motion-language dataset, to two encoders, cosine similarity, multi-positive contrastive loss, and bidirectional retrieval">
+
+<!-- ====================================================== faint wiring, always visible -->
+<g class="wire">
+    <path d="M232 170 H300"/><path d="M232 430 H300"/>
+    <path d="M560 170 H600 V282 H640"/><path d="M560 430 H600 V318 H640"/>
+    <path d="M820 300 H880"/>
+    <path d="M1140 300 H1180 V222 H1210"/><path d="M1140 300 H1180 V378 H1210"/>
+    <path d="M1420 222 H1470 V282 H1500"/><path d="M1420 378 H1470 V318 H1500"/>
+    <path d="M1650 300 H1690"/>
+    <path d="M1690 300 V140 H1720"/><path d="M1690 300 V460 H1720"/>
+</g>
+
+<!-- ====================================================== stage 0 · inputs -->
+<g class="stage s0">
+    <text class="cap" x="140" y="70">INPUT</text>
+    <rect class="box purple" x="48" y="100" width="184" height="140"/>
+    <text class="label" x="140" y="140">Driving</text>
+    <text class="label" x="140" y="168">Dataset</text>
+    <g class="icon" transform="translate(84 186)">
+        <path d="M0 22 l10 0 6-14 8 28 8-22 6 10 8-4 10 2 8 0"/>
+        <text x="60" y="8" style="font-size:12px;fill:#1f2530;stroke:none;text-anchor:start">IMU</text>
+        <text x="60" y="26" style="font-size:12px;fill:#1f2530;stroke:none;text-anchor:start">CAN</text>
+    </g>
+    <rect class="box purple" x="48" y="360" width="184" height="140"/>
+    <text class="label" x="140" y="402">Ontology State</text>
+    <text class="label" x="140" y="430">Combinations</text>
+    <!-- mini ontology: three level colours -->
+    <g transform="translate(96 446)">
+        <rect x="0" y="0" width="22" height="14" rx="3" fill="#c4dff2" stroke="#6fa8d6"/>
+        <rect x="32" y="0" width="22" height="14" rx="3" fill="#f6dbc6" stroke="#d19a6e"/>
+        <rect x="64" y="0" width="22" height="14" rx="3" fill="#cfe9d1" stroke="#7fb886"/>
+        <path d="M11 14 v10 M43 14 v10 M75 14 v10 M11 24 H75" stroke="#7a8494" fill="none"/>
+    </g>
+</g>
+<path class="flow a0" pathLength="1" d="M232 170 H300"/><path class="head a0" d="M300 164 l12 6 -12 6z"/>
+<path class="flow a0" pathLength="1" d="M232 430 H300"/><path class="head a0" d="M300 424 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 1 · labeling / description -->
+<g class="stage s1">
+    <text class="cap" x="436" y="70">DATASET CONSTRUCTION</text>
+    <rect class="box purple" x="312" y="110" width="248" height="120"/>
+    <text class="label" x="436" y="160">Vehicle-Dynamics</text>
+    <text class="label" x="436" y="188">Based Labeling</text>
+    <rect class="box purple" x="312" y="370" width="248" height="120"/>
+    <text class="label" x="436" y="420">Description Gen.</text>
+    <text class="label" x="436" y="448">&amp; Verification</text>
+</g>
+<path class="flow a1" pathLength="1" d="M560 170 H600 V282 H640"/><path class="head a1" d="M640 276 l12 6 -12 6z"/>
+<path class="flow a1" pathLength="1" d="M560 430 H600 V318 H640"/><path class="head a1" d="M640 312 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 2 · pair matching -->
+<g class="stage s2">
+    <rect class="box purple" x="652" y="230" width="168" height="140"/>
+    <text class="label" x="736" y="290">Pair</text>
+    <text class="label" x="736" y="318">Matching</text>
+    <g transform="translate(700 330)">
+        <rect x="0" y="0" width="14" height="14" fill="#2e8b7a"/><rect x="18" y="0" width="14" height="14" fill="#e6e6e6" stroke="#9a9a9a"/>
+        <rect x="36" y="0" width="14" height="14" fill="#2e8b7a"/><rect x="54" y="0" width="14" height="14" fill="none" stroke="#ec8a3c"/>
+        <path d="M56 2 l10 10" stroke="#ec8a3c"/>
+    </g>
+</g>
+<path class="flow a2" pathLength="1" d="M820 300 H880"/><path class="head a2" d="M880 294 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 3 · dataset -->
+<g class="stage s3">
+    <rect class="box purple" x="892" y="180" width="248" height="240"/>
+    <text class="label" x="1016" y="220">Motion-Language</text>
+    <text class="label" x="1016" y="248">Dataset</text>
+    <rect x="910" y="268" width="100" height="130" rx="8" fill="#fff" stroke="#b3a3d9"/>
+    <text class="small" x="960" y="294">Sensor Clips</text>
+    <g class="icon" transform="translate(922 304)">
+        <path d="M0 18 l8 0 6-12 8 26 8-20 6 10 8-4 8 2 6 0 8 0 6 0"/>
+        <path d="M0 44 l8 0 6-8 8 16 8-12 6 6 8-2 8 2 6 0 8 0 6 0"/>
+    </g>
+    <text class="cap" x="960" y="384" style="font-size:13px">2 sec</text>
+    <rect x="1022" y="268" width="100" height="130" rx="8" fill="#fff" stroke="#b3a3d9"/>
+    <text class="small" x="1072" y="294">Motion</text>
+    <text class="small" x="1072" y="314">Descriptions</text>
+    <g class="icon" transform="translate(1040 328)" style="stroke:#2e8b7a">
+        <path d="M0 0 h18 v26 h-18z M4 8 h10 M4 14 h10 M4 20 h7"/>
+        <path d="M24 0 h18 v26 h-18z M28 8 h10 M28 14 h10 M28 20 h7"/>
+        <path d="M48 0 h18 v26 h-18z M52 8 h10 M52 14 h10 M52 20 h7" style="stroke:#ec8a3c"/>
+    </g>
+</g>
+<path class="flow a3" pathLength="1" d="M1140 300 H1180 V222 H1210"/><path class="head a3" d="M1210 216 l12 6 -12 6z"/>
+<path class="flow a3" pathLength="1" d="M1140 300 H1180 V378 H1210"/><path class="head a3" d="M1210 372 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 4 · encoders -->
+<g class="stage s4">
+    <text class="cap" x="1330" y="70">ALIGNMENT</text>
+    <rect class="box teal" x="1222" y="162" width="160" height="120"/>
+    <text class="label" x="1302" y="212">Motion</text>
+    <text class="label" x="1302" y="240">Encoder</text>
+    <g transform="translate(1394 176)">
+        <rect x="0" y="0" width="16" height="22" fill="#2e8b7a"/><rect x="0" y="24" width="16" height="22" fill="#7bbfb2"/>
+        <rect x="0" y="48" width="16" height="22" fill="#b6ddd6"/><rect x="0" y="72" width="16" height="20" fill="#d8ede9" stroke="#2e8b7a"/>
+    </g>
+    <rect class="box teal" x="1222" y="318" width="160" height="120"/>
+    <text class="label" x="1302" y="368">Sentence</text>
+    <text class="label" x="1302" y="396">Encoder</text>
+    <g transform="translate(1394 332)">
+        <rect x="0" y="0" width="16" height="22" fill="#7bbfb2"/><rect x="0" y="24" width="16" height="22" fill="#2e8b7a"/>
+        <rect x="0" y="48" width="16" height="22" fill="#d8ede9" stroke="#2e8b7a"/><rect x="0" y="72" width="16" height="20" fill="#b6ddd6"/>
+    </g>
+</g>
+<path class="flow a4" pathLength="1" d="M1420 222 H1470 V282 H1500"/><path class="head a4" d="M1500 276 l12 6 -12 6z"/>
+<path class="flow a4" pathLength="1" d="M1420 378 H1470 V318 H1500"/><path class="head a4" d="M1500 312 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 5 · cosine + pos/neg check -->
+<g class="stage s5">
+    <rect class="box teal" x="1512" y="200" width="138" height="200"/>
+    <text class="label" x="1581" y="244">Cosine</text>
+    <text class="label" x="1581" y="272">Similarity</text>
+    <text class="small" x="1581" y="304">Pos / Neg check</text>
+    <g transform="translate(1540 318)">
+        <rect x="0" y="0" width="16" height="16" fill="#2e8b7a"/><rect x="20" y="0" width="16" height="16" fill="#e6e6e6" stroke="#9a9a9a"/>
+        <rect x="40" y="0" width="16" height="16" fill="none" stroke="#ec8a3c"/><path d="M42 2 l12 12" stroke="#ec8a3c"/>
+        <rect x="60" y="0" width="16" height="16" fill="#2e8b7a"/>
+        <rect x="0" y="20" width="16" height="16" fill="#e6e6e6" stroke="#9a9a9a"/><rect x="20" y="20" width="16" height="16" fill="#2e8b7a"/>
+        <rect x="40" y="20" width="16" height="16" fill="#e6e6e6" stroke="#9a9a9a"/><rect x="60" y="20" width="16" height="16" fill="none" stroke="#ec8a3c"/>
+        <path d="M62 22 l12 12" stroke="#ec8a3c"/>
+        <rect x="0" y="40" width="16" height="16" fill="none" stroke="#ec8a3c"/><path d="M2 42 l12 12" stroke="#ec8a3c"/>
+        <rect x="20" y="40" width="16" height="16" fill="#e6e6e6" stroke="#9a9a9a"/><rect x="40" y="40" width="16" height="16" fill="#2e8b7a"/>
+        <rect x="60" y="40" width="16" height="16" fill="#e6e6e6" stroke="#9a9a9a"/>
+    </g>
+</g>
+<path class="flow a5" pathLength="1" d="M1650 300 H1690"/><path class="head a5" d="M1690 294 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 6 · loss -->
+<g class="stage s6">
+    <rect class="box teal" x="1702" y="230" width="196" height="140"/>
+    <text class="label" x="1800" y="278">Multi-Positive</text>
+    <text class="label" x="1800" y="306">Contrastive</text>
+    <text class="label" x="1800" y="334">Loss</text>
+</g>
+<path class="flow a6" pathLength="1" d="M1690 300 V140 H1720"/><path class="head a6" d="M1720 134 l12 6 -12 6z"/>
+<path class="flow a6" pathLength="1" d="M1690 300 V460 H1720"/><path class="head a6" d="M1720 454 l12 6 -12 6z"/>
+
+<!-- ====================================================== stage 7 · retrieval (inference) -->
+<g class="stage s7">
+    <text class="cap" x="1800" y="70">RETRIEVAL</text>
+    <rect class="box beige" x="1732" y="98" width="166" height="84"/>
+    <text class="small" x="1815" y="128">Text-to-Motion</text>
+    <text class="label" x="1815" y="160">Sensor Clips</text>
+    <rect class="box beige" x="1732" y="418" width="166" height="84"/>
+    <text class="small" x="1815" y="448">Motion-to-Text</text>
+    <text class="label" x="1815" y="480">Motion States</text>
+</g>
+
+<!-- ====================================================== caption row -->
+<text class="cap" x="960" y="566">Ontology-grounded pipeline · IMU and CAN only at inference · one cycle 8 s</text>
+</svg>
+</body>
+</html>
