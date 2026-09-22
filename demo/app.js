@@ -76,25 +76,33 @@ async function loadIndex() {
     embeddings = new Float32Array(half.length);
     for (let i = 0; i < half.length; i++) embeddings[i] = decodeHalf(half[i]);
 
-    declaredStates = new Map(queriesJson.queries.map((q) => [normalize(q.text), q]));
+    declaredStates = new Map([...queriesJson.queries, HIGH_SPEED_OVERSTEER].map((q) => [normalize(q.text), q]));
     element("n-clips").textContent = index.n_clips.toLocaleString();
     element("pool-size").textContent = `${index.n_clips.toLocaleString()} clips × ${DIM} d`;
 
     const examples = element("examples");
     for (const query of pickExamples(queriesJson.queries)) {
         const button = document.createElement("button");
-        button.textContent = query.text.replace(/^Find motion where (the )?/, "").replace(/\.$/, "");
+        button.textContent = query.label ?? query.text.replace(/^Find motion where (the )?/, "").replace(/\.$/, "");
         button.title = query.text;
         button.addEventListener("click", () => { element("query").value = query.text; search(); });
         examples.append(button);
     }
 }
 
-/* One short evaluation query per ontology level, so each example carries declared states. */
+/* The headline example names two states; the evaluation set has no such two-state query, so it is declared here. */
+const HIGH_SPEED_OVERSTEER = {
+    query_id: null, label: "high speed oversteer",
+    text: "The vehicle moves at a high speed while exhibiting oversteer.",
+    states: { speed_state: "high", longitudinal_motion: null, lateral_motion: null,
+              lateral_stability: "oversteer", longitudinal_stability: null, ride_comfort: null },
+};
+
+/* One short query per ontology level, so each example carries declared states. */
 function pickExamples(queries) {
-    const wanted = ["Q019", "Q022", "Q064", "Q082"];
+    const wanted = ["Q019", "Q022", "Q082"];
     const chosen = wanted.map((id) => queries.find((q) => q.query_id === id)).filter(Boolean);
-    return chosen.length ? chosen : queries.slice(0, 4);
+    return [HIGH_SPEED_OVERSTEER, ...(chosen.length ? chosen : queries.slice(0, 3))];
 }
 
 function decodeHalf(bits) {
