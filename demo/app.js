@@ -98,11 +98,14 @@ const HIGH_SPEED_OVERSTEER = {
               lateral_stability: "oversteer", longitudinal_stability: null, ride_comfort: null },
 };
 
-/* One short query per ontology level, so each example carries declared states. */
+/* One example per ontology category after the two-state headline, each carrying declared states. */
+const EXAMPLE_IDS = ["Q019", "Q022", "Q052", "Q070", "Q082"];
+const EXAMPLE_LABELS = { Q019: "extreme speed", Q022: "hard braking", Q052: "tight left turn",
+                         Q070: "traction slip", Q082: "uncomfortable ride" };
 function pickExamples(queries) {
-    const wanted = ["Q019", "Q022", "Q082"];
-    const chosen = wanted.map((id) => queries.find((q) => q.query_id === id)).filter(Boolean);
-    return [HIGH_SPEED_OVERSTEER, ...(chosen.length ? chosen : queries.slice(0, 3))];
+    const chosen = EXAMPLE_IDS.map((id) => queries.find((q) => q.query_id === id)).filter(Boolean)
+                              .map((q) => ({ ...q, label: EXAMPLE_LABELS[q.query_id] }));
+    return [HIGH_SPEED_OVERSTEER, ...(chosen.length ? chosen : queries.slice(0, 5))];
 }
 
 function decodeHalf(bits) {
@@ -281,7 +284,7 @@ async function encode(text) {
 const STAGES = ["input", "encoder", "pool", "cosine", "output"];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/* A plain search shows each stage; the walkthrough holds them longer and types the sentence. */
+/* A plain search shows each stage; IMMEDIATE skips the show for programmatic use. */
 const SHOWN = { stage: markStage, hold: sleep, reveal: staggerResults, fly };
 const IMMEDIATE = { stage() {}, async hold() {}, async reveal() {}, async fly() {} };
 
@@ -396,45 +399,8 @@ async function search() {
 
 function setBusy(busy) {
     element("search").disabled = busy;
-    element("walkthrough").disabled = busy;
     element("query").disabled = busy;
-}
-
-/* Runs the same query as the Search button, only slowly, so each stage can be read as it happens. */
-async function walkthrough() {
-    const text = element("query").value.trim() || element("query").placeholder;
-    setBusy(true);
-    element("results").replaceChildren();
-    element("detail").replaceChildren();
-    element("query-vector").classList.remove("shown");
-    element("query").value = "";
-    try {
-        status("Writing the query…");
-        for (const character of text) {
-            element("query").value += character;
-            await sleep(28);
-        }
-        await sleep(500);
-        await runQuery(text, {
-            stage: markStage,
-            fly,
-            hold: (ms) => sleep(Math.round(ms * 1.5)),
-            async reveal() {
-                const items = [...element("results").children];
-                items.forEach((item) => { item.style.visibility = "hidden"; });
-                for (const item of items) {
-                    item.style.visibility = "";
-                    await sleep(140);
-                }
-            },
-        });
-    } catch (error) {
-        markStage(null);
-        status(`Failed: ${error}`);
-        throw error;
-    } finally {
-        setBusy(false);
-    }
+    document.querySelectorAll("#examples button").forEach((button) => { button.disabled = busy; });
 }
 
 function renderResults() {
@@ -792,7 +758,6 @@ function drawTrajectory(canvas, clip, at = null) {
 /* ---------------------------------------------------------------- start */
 
 element("search").addEventListener("click", search);
-element("walkthrough").addEventListener("click", walkthrough);
 element("query").addEventListener("keydown", (event) => { if (event.key === "Enter") search(); });
 element("sample").addEventListener("click", () => sampleClip().catch((error) => status(`Failed: ${error}`)));
 

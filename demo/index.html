@@ -103,7 +103,7 @@ b, strong { font-weight: 600; }
 
 /* ---------------------------------------------------------------- query */
 
-.ask { display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-xs); max-width: 920px; }
+.ask { display: grid; grid-template-columns: 1fr auto; gap: var(--space-xs); max-width: 920px; }
 .ask .field { position: relative; }
 .ask .field svg {
     position: absolute; left: 14px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%);
@@ -142,16 +142,18 @@ button.secondary:hover:not(:disabled) { background: var(--paper-sunk); border-co
 button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); background: var(--paper-sunk); }
 
 .examples {
-    display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-md);
-    margin-top: var(--space-sm); max-width: 860px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs);
+    margin-top: var(--space-sm); max-width: 920px;
 }
+.examples .cap { margin-right: var(--space-2xs); }
 .examples button {
-    font-family: var(--font-body); font-size: var(--text-sm); color: var(--ink-soft);
-    padding: 2px 0; background: none; border: 0; cursor: pointer; text-align: left;
-    border-bottom: 1px solid var(--rule-strong);
-    transition: border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+    font-family: var(--font-body); font-size: var(--text-sm); color: var(--ink);
+    padding: 4px 12px; background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 999px;
+    cursor: pointer; text-align: left;
+    transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
 }
-.examples button:hover { color: var(--ink); border-bottom-color: var(--encoder-edge); }
+.examples button:hover { border-color: var(--encoder-edge); background: var(--encoder-fill); }
+.examples button:disabled { color: var(--ink-mute); cursor: default; }
 .examples button:focus-visible { outline: 2px solid var(--encoder-edge); outline-offset: 3px; }
 
 #status {
@@ -348,7 +350,7 @@ canvas { display: block; width: 100%; }
 .verdict.unverified, .verdict.not-applicable { color: var(--verdict-none); }
 
 .examples.aside { margin-top: var(--space-xs); }
-.examples.aside button { color: var(--encoder-ink); border-bottom-color: var(--encoder-edge); }
+.examples.aside button { color: var(--encoder-ink); border-color: var(--encoder-edge); border-radius: 4px; }
 
 /* ---------------------------------------------------------------- motion-to-text */
 
@@ -413,9 +415,8 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
                placeholder="Describe a vehicle motion, e.g. high speed with oversteer">
     </div>
     <button id="search">Search</button>
-    <button id="walkthrough" class="secondary">Walk through it</button>
 </div>
-<div class="examples" id="examples"></div>
+<div class="examples" id="examples"><span class="cap">Try an example</span></div>
 <div class="examples aside"><button id="sample">Motion-to-Text on a sample clip, no download needed</button></div>
 <div id="status">Loading the clip index&hellip;</div>
 <div id="progress"><div></div></div>
@@ -499,6 +500,6 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
 checkpoint. No ranking is precomputed or replayed.</p>
 
 </div>
-<script type="module" src="app.js?v=9e1cef4c"></script>
+<script type="module" src="app.js?v=64702429"></script>
 </body>
 </html>
