@@ -68,7 +68,7 @@ body {
     font-size: var(--text-base);
     line-height: 1.6;
     color: var(--ink);
-    background: var(--paper);
+    background: linear-gradient(180deg, oklch(95.5% 0.025 176) 0, var(--paper) 520px) no-repeat var(--paper);
     -webkit-font-smoothing: antialiased;
 }
 
@@ -84,10 +84,8 @@ b, strong { font-weight: 600; }
 /* ---------------------------------------------------------------- masthead */
 
 .masthead {
-    display: flex; justify-content: space-between; align-items: baseline;
-    gap: var(--space-md); flex-wrap: wrap;
-    padding: var(--space-lg) 0 var(--space-xs);
-    border-bottom: 1px solid var(--ink);
+    display: flex; flex-direction: column; align-items: center; gap: var(--space-xs);
+    padding: var(--space-xl) 0 var(--space-md); text-align: center;
 }
 .masthead h1 { margin: 0; font-size: var(--text-display); line-height: 1.05; letter-spacing: -0.015em; }
 .masthead .standfirst {
@@ -96,14 +94,14 @@ b, strong { font-weight: 600; }
 }
 
 .lede {
-    max-width: 920px; margin: var(--space-md) 0 var(--space-lg);
+    max-width: 880px; margin: 0 auto var(--space-lg); text-align: center;
     font-size: var(--text-lg); line-height: 1.5; font-family: var(--font-display);
     color: var(--ink-soft);
 }
 
 /* ---------------------------------------------------------------- query */
 
-.ask { display: grid; grid-template-columns: 1fr auto; gap: var(--space-xs); max-width: 920px; }
+.ask { display: grid; grid-template-columns: 1fr auto; gap: var(--space-xs); max-width: 920px; margin: 0 auto; }
 .ask .field { position: relative; }
 .ask .field svg {
     position: absolute; left: 14px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%);
@@ -118,19 +116,20 @@ b, strong { font-weight: 600; }
     transition: border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
 }
 #query::placeholder { color: var(--ink-mute); }
+#query { box-shadow: 0 1px 2px oklch(0% 0 0 / .05); }
 #query:hover { border-color: var(--ink-soft); }
 #query:focus-visible { outline: none; border-color: var(--encoder-edge); box-shadow: 0 0 0 3px var(--encoder-fill); }
 #query:disabled { color: var(--ink-mute); border-style: dashed; background: var(--paper-sunk); }
 
 #search {
     font-family: var(--font-body); font-size: var(--text-base); font-weight: 600;
-    white-space: nowrap; padding: 0 var(--space-md); cursor: pointer;
-    color: oklch(32% 0.07 176); background: var(--encoder-fill);
+    white-space: nowrap; padding: 0 var(--space-lg); cursor: pointer;
+    color: #fff; background: var(--encoder-edge);
     border: 1.5px solid var(--encoder-edge); border-radius: 4px;
     transition: background-color var(--dur-short) var(--ease-out),
                 transform 90ms var(--ease-out);
 }
-#search:hover:not(:disabled) { background: oklch(93% 0.035 176); }
+#search:hover:not(:disabled) { background: oklch(52% 0.10 176); }
 #search:focus-visible { outline: 2px solid var(--encoder-edge); outline-offset: 2px; }
 #search:active:not(:disabled) { transform: translateY(1px); }
 #search:disabled { cursor: default; color: var(--ink-mute); background: var(--paper-sunk);
@@ -142,7 +141,7 @@ button.secondary:hover:not(:disabled) { background: var(--paper-sunk); border-co
 button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); background: var(--paper-sunk); }
 
 .examples {
-    display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-xs);
     margin-top: var(--space-sm);
 }
 .examples .cap { font-family: var(--font-num); font-size: var(--text-xs); letter-spacing: .09em; text-transform: uppercase;
@@ -158,10 +157,10 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .examples button:focus-visible { outline: 2px solid var(--encoder-edge); outline-offset: 3px; }
 
 #status {
-    margin-top: var(--space-md); max-width: 920px;
+    margin: var(--space-md) auto 0; max-width: 920px; text-align: center;
     font-size: var(--text-sm); color: var(--ink-soft); min-height: 2.6em;
 }
-#progress { max-width: 860px; height: 2px; margin-top: var(--space-2xs);
+#progress { max-width: 920px; height: 3px; margin: var(--space-2xs) auto 0; border-radius: 2px;
             background: var(--paper-sunk); display: none; }
 #progress > div { height: 100%; width: 0; background: var(--encoder-edge); }
 
@@ -183,7 +182,32 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
     position: absolute; left: 14px; top: 14px; width: 24px; height: 24px;
     fill: none; stroke: var(--ink-soft); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
-.flow .box.encoder { border-color: var(--encoder-edge); background: var(--encoder-fill); }
+#flow-input   { border-color: #b3a3d9; background: #eee9f8; }
+#flow-encoder { border-color: var(--encoder-edge); background: var(--encoder-fill); }
+#flow-pool    { border-color: #6ea8d5; background: #dcecf8; }
+#flow-cosine  { border-color: #d19a6d; background: #faeadf; }
+#flow-output  { border-color: #7eb885; background: #e2f1e3; }
+.flow .box { box-shadow: 0 1px 3px oklch(0% 0 0 / .06); }
+.flow .box.active { box-shadow: 0 0 0 2px var(--encoder-edge), 0 6px 18px oklch(0% 0 0 / .10); }
+.flow .box svg:not(.net) { stroke: var(--ink); }
+
+/* interiors: a sentence sketch, the cosine formula, a ranked-list sketch */
+.flow .lines { margin-top: 10px; display: grid; gap: 7px; }
+.flow .lines i { display: block; height: 8px; border-radius: 4px; background: oklch(0% 0 0 / .10); }
+.flow .lines i:nth-child(2) { width: 82%; } .flow .lines i:nth-child(3) { width: 58%; }
+.flow .box.active .lines, .flow .box.done .lines { display: none; }
+.flow .formula { margin-top: 10px; font-family: var(--font-num); font-size: var(--text-xs); color: var(--ink-soft);
+                 padding: 5px 9px; border-radius: 3px; background: oklch(100% 0 0 / .55); display: inline-block; white-space: nowrap; }
+.flow .ranklist { margin-top: 10px; display: grid; gap: 6px; counter-reset: rk; }
+.flow .ranklist i { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 8px; counter-increment: rk; }
+.flow .ranklist i::before { content: counter(rk); font-family: var(--font-display); font-weight: 600; font-size: var(--text-sm); color: var(--ink-soft); }
+.flow .ranklist i::after { content: ""; display: block; height: 8px; border-radius: 4px; background: #7eb885; opacity: .55;
+                           width: var(--w); transform-origin: left; }
+.flow .ranklist i:nth-child(1) { --w: 92%; } .flow .ranklist i:nth-child(2) { --w: 74%; } .flow .ranklist i:nth-child(3) { --w: 61%; }
+.flow .ranklist i:nth-child(4) { --w: 47%; }
+.flow .box.active .ranklist i::after { animation: grow 500ms var(--ease-out) both; animation-delay: calc(var(--k) * 120ms); }
+.flow .ranklist i:nth-child(1) { --k: 0; } .flow .ranklist i:nth-child(2) { --k: 1; } .flow .ranklist i:nth-child(3) { --k: 2; } .flow .ranklist i:nth-child(4) { --k: 3; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
 .flow .box b { display: block; font-size: var(--text-base); font-weight: 600; }
 .flow .box span { display: block; font-size: var(--text-sm); color: var(--ink-soft); line-height: 1.4; }
 .flow:has(.active) .box:not(.active) { opacity: .42; }
@@ -193,9 +217,9 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .flow .arrow.lit { color: var(--encoder-edge); }
 
 /* the typed sentence rides along in the first box */
-.flow .ticket { display: none; margin-top: 6px; padding: 2px 8px; font-size: var(--text-sm); line-height: 1.4;
-                color: var(--ink); background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 3px;
-                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.flow .ticket { display: none; margin-top: 8px; padding: 6px 10px; font-family: var(--font-display);
+                font-size: var(--text-base); line-height: 1.4; color: var(--ink); background: var(--paper);
+                border: 1px solid #b3a3d9; border-radius: 3px; overflow-wrap: anywhere; }
 .flow .box.active .ticket, .flow .box.done .ticket { display: block; }
 .flow .box.active .ticket { animation: ticket-in 320ms var(--ease-out) both; }
 @keyframes ticket-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
@@ -282,7 +306,7 @@ button.secondary:disabled { color: var(--ink-mute); border-color: var(--rule); b
 .section-head {
     display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-md);
     margin-bottom: var(--space-md); padding-bottom: var(--space-2xs);
-    border-bottom: 1px solid var(--rule-strong);
+    border-bottom: 2px solid var(--encoder-edge);
 }
 .section-head h2 { margin: 0; font-size: var(--text-xl); }
 .section-head .note { margin: 0; }
@@ -413,9 +437,9 @@ canvas { display: block; width: 100%; }
     <div class="standfirst">Live query &middot; anonymous submission</div>
 </header>
 
-<p class="lede">Write a sentence about how a vehicle moved. This page encodes it with the trained
-sentence encoder and ranks every held-out test clip by cosine similarity. Open any clip to run the
-reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
+<p class="lede">Type a sentence about how a car moved. The trained sentence encoder turns it into a vector,
+and every held-out test clip is ranked by how close its motion vector is. Open any clip to go the other way:
+its motion vector is matched against 5,670 descriptions.</p>
 
 <div class="ask">
     <div class="field">
@@ -435,6 +459,7 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <div class="box" id="flow-input">
         <svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>
         <b>Text query</b><span>your sentence</span>
+        <div class="lines" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="ticket" id="query-ticket"></div>
     </div>
     <div class="arrow">&rarr;</div>
@@ -463,6 +488,7 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <div class="box" id="flow-cosine">
         <svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M4 20L16 6"/><path d="M11 20a7 7 0 0 0-2.4-5.3"/></svg>
         <b>Cosine similarity</b><span>against every test clip</span>
+        <div class="formula" aria-hidden="true">cos θ = q·v / ‖q‖‖v‖</div>
         <div class="calc" aria-hidden="true"><i class="qv"></i><span class="op">·</span>
             <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     </div>
@@ -470,6 +496,7 @@ reverse direction: its motion embedding ranked against 5,670 descriptions.</p>
     <div class="box" id="flow-output">
         <svg viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="12" rx="1"/><path d="M7 5h14v12"/><path d="M5 13l2-3 2 5 2-4 2 2 2-1"/></svg>
         <b>Ranked clips</b><span>top ten, unfiltered</span>
+        <div class="ranklist" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     </div>
 </div>
 
