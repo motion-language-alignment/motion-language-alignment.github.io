@@ -148,6 +148,7 @@ tr.ours td { font-weight: 600; border-top: 1px solid var(--rule-strong); }
 math { font-size: 1.1em; }
 .formula { margin: var(--space-md) 0; padding: var(--space-md); border-left: 2px solid var(--encoder-edge);
            background: var(--paper-sunk); overflow-x: auto; }
+.formula math[display="block"] + math[display="block"] { margin-top: var(--space-sm); }
 .formula p { margin: var(--space-xs) 0 0; font-size: var(--text-sm); color: var(--ink-soft); }
 
 .pairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); margin-top: var(--space-md); }
@@ -349,7 +350,9 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
             <math><mi>i</mi></math> and sentence <math><mi>j</mi></math>,
             <math><msub><mi>P</mi><mi>i</mi></msub></math> and <math><msub><mi>Q</mi><mi>j</mi></msub></math> the
             positive sets, and <math><msub><mi>C</mi><mi>i</mi></msub></math>,
-            <math><msub><mi>D</mi><mi>j</mi></msub></math> the decidable candidates:</p>
+            <math><msub><mi>D</mi><mi>j</mi></msub></math> the decidable candidates, and
+            <math><mi>I</mi></math>, <math><mi>J</mi></math> the clips and sentences in the batch with at least one
+            positive:</p>
             <div class="formula">
                 <math display="block">
                   <mrow>
@@ -367,9 +370,35 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
                     </mfrac>
                   </mrow>
                 </math>
-                <p>The Text-to-Motion term mirrors it over sentences with at least one positive clip, and the loss is the
-                mean of the two directions. A sentence without a positive clip in the batch is no anchor but stays a
-                negative candidate wherever the pair is decidable.</p>
+                <math display="block">
+                  <mrow>
+                    <msub><mi mathvariant="script">L</mi><mrow><mi>t</mi><mo>→</mo><mi>m</mi></mrow></msub>
+                    <mo>=</mo><mo>−</mo>
+                    <mfrac><mn>1</mn><mrow><mo>|</mo><mi>J</mi><mo>|</mo></mrow></mfrac>
+                    <munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><mi>J</mi></mrow></munder>
+                    <mfrac><mn>1</mn><mrow><mo>|</mo><msub><mi>Q</mi><mi>j</mi></msub><mo>|</mo></mrow></mfrac>
+                    <munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><msub><mi>Q</mi><mi>j</mi></msub></mrow></munder>
+                    <mi>log</mi>
+                    <mfrac>
+                      <mrow><mi>exp</mi><mo>(</mo><msub><mi>z</mi><mi>ij</mi></msub><mo>)</mo></mrow>
+                      <mrow><munder><mo>∑</mo><mrow><mi>k</mi><mo>∈</mo><msub><mi>D</mi><mi>j</mi></msub></mrow></munder>
+                            <mi>exp</mi><mo>(</mo><msub><mi>z</mi><mi>kj</mi></msub><mo>)</mo></mrow>
+                    </mfrac>
+                  </mrow>
+                </math>
+                <math display="block">
+                  <mrow>
+                    <mi mathvariant="script">L</mi><mo>=</mo>
+                    <mfrac><mn>1</mn><mn>2</mn></mfrac>
+                    <mo>(</mo>
+                    <msub><mi mathvariant="script">L</mi><mrow><mi>m</mi><mo>→</mo><mi>t</mi></mrow></msub>
+                    <mo>+</mo>
+                    <msub><mi mathvariant="script">L</mi><mrow><mi>t</mi><mo>→</mo><mi>m</mi></mrow></msub>
+                    <mo>)</mo>
+                  </mrow>
+                </math>
+                <p>Clips anchor the first term and sentences the second; the loss is their mean. A sentence without a
+                positive clip in the batch is no anchor but stays a negative candidate wherever the pair is decidable.</p>
             </div>
         </div>
     </div>
