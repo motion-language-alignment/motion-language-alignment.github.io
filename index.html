@@ -113,6 +113,9 @@ section { padding: var(--space-xl) 0 0; }
 .section-head h2 { margin: 0; }
 .section-head .cap { padding-bottom: 3px; }
 .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-lg); align-items: start; }
+/* the abstract: lede across the full measure, then the body flowing in two balanced columns */
+.abstract-body { max-width: 84ch; margin: 0 auto; font-size: var(--text-base); line-height: 1.7; }
+.abstract-body p { margin: 0; }
 .lede { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.5; color: var(--ink-soft); }
 
 /* ---------------------------------------------------------------- tables */
@@ -213,10 +216,7 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
 
 <section id="abstract">
     <div class="section-head"><h2>Abstract</h2><span class="cap">Problem &middot; framework &middot; result</span></div>
-    <div class="two-col">
-        <p class="lede">Vehicle sensors record how a car moved; engineers describe the motion they look for in words.
-        We align the two with an ontology that defines the states a description can name, the rules that label them
-        in the signals, and the pairs a contrastive model should treat as positive.</p>
+    <div class="abstract-body">
         <p>Sensors in modern vehicles produce a constant stream of data. Inertial measurement unit (IMU) and controller
         area network (CAN) signals encode vehicle motion and dynamic response, but identifying specific motions in the
         signals requires vehicle-dynamics expertise and remains labor-intensive at scale. To close the gap between raw
@@ -235,7 +235,7 @@ footer { margin-top: var(--space-2xl); padding-top: var(--space-xs); border-top:
 </section>
 
 <section id="video">
-    <div class="section-head"><h2>Supplementary video</h2><span class="cap">2 min 58 s &middot; narrated &middot; captioned</span></div>
+    <div class="section-head"><h2>Supplementary video</h2><span class="cap">3 min &middot; narrated &middot; captioned</span></div>
     <figure>
         <video controls playsinline preload="metadata" poster="assets/supplementary_video_poster.png"
                src="assets/supplementary_video.mp4"></video>
